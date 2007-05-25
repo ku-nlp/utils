@@ -25,8 +25,9 @@ package CompoundNounExtractor;
 
 use strict;
 use utf8;
+use vars qw($jnum_max);
 
-my $jnum_max = 100; # 複合名詞の最大数
+$jnum_max = 100; # 複合名詞の最大数
 
 sub new {
     my ($this, $option) = @_;

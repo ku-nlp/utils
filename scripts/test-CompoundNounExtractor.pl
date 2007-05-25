@@ -33,7 +33,7 @@ while (<>) {
 	print "\n\n";
 
 	foreach my $bnst ($result->bnst) {
-	    print '¡ú', $bnst->id, "\n";
+	    print STDERR '¡ú', $bnst->id, "\n";
 	    if ($opt{longest}) {
 
 		my $word = $cne->ExtractCompoundNounfromBnst($bnst, { longest => 1 });
