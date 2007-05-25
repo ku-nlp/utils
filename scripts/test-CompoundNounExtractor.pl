@@ -8,6 +8,8 @@
 
 use strict;
 use encoding 'euc-jp';
+binmode STDERR, ':encoding(euc-jp)';
+
 use KNP;
 use CompoundNounExtractor;
 use Getopt::Long;
@@ -30,10 +32,10 @@ while (<>) {
 	foreach my $mrph ($result->mrph) {
 	    print $mrph->midasi;
 	}
-	print "\n\n";
+	print "\n";
 
 	foreach my $bnst ($result->bnst) {
-	    print STDERR '¡ú', $bnst->id, "\n";
+	    print STDERR '¡ú bid:', $bnst->id, "\n";
 	    if ($opt{longest}) {
 
 		my $word = $cne->ExtractCompoundNounfromBnst($bnst, { longest => 1 });
