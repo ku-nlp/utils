@@ -4,7 +4,7 @@
 
 # test script for CompoundNounExtractor
 
-# echo '自然言語処理を研究する。" | juman | knp -tab -dpnd | perl -I../perl test-CompoundNounExtractor.pl
+# echo '自然言語処理を研究する。' | juman | knp -tab -dpnd | perl -I../perl test-CompoundNounExtractor.pl
 
 use strict;
 use encoding 'euc-jp';
