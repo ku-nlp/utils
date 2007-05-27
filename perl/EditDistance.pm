@@ -39,7 +39,7 @@ sub calc
 
     # 表の最上段を初期化
     for (my $j = 1; $j <= @str2; $j++) {
-	$table->[0][$j]{score} += $ins_penalty;
+	$table->[0][$j]{score} = $table->[0][$j-1] + $ins_penalty;
     }
     
     for (my $i = 1; $i <= @str1; $i++) {
