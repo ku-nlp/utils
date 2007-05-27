@@ -29,7 +29,7 @@ sub new
 
 sub calc
 {
-    my ($this, $str1, $str2) = @_;
+    my ($this, $str1, $str2, $option) = @_;
 
     my @str1 = split (//, $str1);
     my @str2 = split (//, $str2);
@@ -39,7 +39,7 @@ sub calc
 
     # 表の最上段を初期化
     for (my $j = 1; $j <= @str2; $j++) {
-	$table->[0][$j]{score} = $table->[0][$j-1] + $ins_penalty;
+	$table->[0][$j]{score} = $table->[0][$j-1]{score} + $ins_penalty;
     }
     
     for (my $i = 1; $i <= @str1; $i++) {
@@ -71,5 +71,15 @@ sub calc
 	    $table->[$i][$j]{path} = $min_path;
 	}
     }
+
+    if ($option->{debug}) {
+	for (my $i = 0; $i <= @str1; $i++) {
+	    for (my $j = 0; $j <= @str2; $j++) {
+		printf "%2.1f ", $table->[$i][$j]{score};
+	    }
+	    print "\n";
+	}
+    }
+
     return $table->[$#str1+1][$#str2+1]{score};
 }
