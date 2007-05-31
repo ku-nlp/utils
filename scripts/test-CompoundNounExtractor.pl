@@ -40,15 +40,13 @@ while (<>) {
 
 		my $word = $cne->ExtractCompoundNounfromBnst($bnst, { longest => 1 });
 
-		print $word->[0], "\n" if $word;
+		print $word->{midasi}, "\n" if $word;
 	    }
 	    else {
 		my @words = $cne->ExtractCompoundNounfromBnst($bnst);
 
 		foreach my $tmp (@words) {
-		    my ($midasi, $repname) = @$tmp;
-
-		    print $midasi, "\n";
+		    print $tmp->{midasi}, "\n";
 		}
 	    }
 	}
