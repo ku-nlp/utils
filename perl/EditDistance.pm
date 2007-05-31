@@ -79,7 +79,6 @@ sub calc
 		    }
 		}
 	    }
-	    print "$i $j: $min_score $min_path\n";
 	    $table->[$i][$j]{score} = $min_score;
 	    $table->[$i][$j]{path} = $min_path;
 	}
@@ -94,18 +93,18 @@ sub calc
 	    print "\n";
 	}
     }
-    print "@str1 @str2\n";
+
     # 結果のトレース
     my $tmp1 = $#str1 + 1;
     my $tmp2 = $#str2 + 1;
     my $path;
     while ($tmp1 || $tmp2) {
-	print "$tmp1 $tmp2 $table->[$tmp1][$tmp2]{path}\n";
 	$path = "$table->[$tmp1][$tmp2]{path}/$path";
 	my ($i_step, $j_step) = split(/:/, $table->[$tmp1][$tmp2]{path});
 	$tmp1 -= $i_step;
 	$tmp2 -= $j_step;
     }
+    $path =~ s/\/$//;
 
     return ($table->[$#str1+1][$#str2+1]{score}, $path);
 }
