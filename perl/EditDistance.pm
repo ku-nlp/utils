@@ -52,6 +52,7 @@ sub calc
     # 表の最上段を初期化
     for (my $j = 1; $j <= @str2; $j++) {
 	$table->[0][$j]{score} = $table->[0][$j-1]{score} + $ins_penalty;
+	$table->[0][$j]{path} = "0:1";
     }
     
     for (my $i = 1; $i <= @str1; $i++) {
@@ -78,6 +79,7 @@ sub calc
 		    }
 		}
 	    }
+	    print "$i $j: $min_score $min_path\n";
 	    $table->[$i][$j]{score} = $min_score;
 	    $table->[$i][$j]{path} = $min_path;
 	}
@@ -92,12 +94,13 @@ sub calc
 	    print "\n";
 	}
     }
-
+    print "@str1 @str2\n";
     # 結果のトレース
     my $tmp1 = $#str1 + 1;
     my $tmp2 = $#str2 + 1;
     my $path;
     while ($tmp1 || $tmp2) {
+	print "$tmp1 $tmp2 $table->[$tmp1][$tmp2]{path}\n";
 	$path = "$table->[$tmp1][$tmp2]{path}/$path";
 	my ($i_step, $j_step) = split(/:/, $table->[$tmp1][$tmp2]{path});
 	$tmp1 -= $i_step;
