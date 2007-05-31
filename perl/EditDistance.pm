@@ -5,6 +5,13 @@ package EditDistance;
 # 
 # 黒橋研究室 博士1年  中澤 敏明
 # nakazawa@nlp.kuee.kyoto-u.ac.jp
+#
+# 最短経路について
+# 1:0   => 一文字削除
+# 0:1   => 一文字挿入
+# 1:1   => 一文字置換
+# 1:1:* => 何もしない(同じ文字)
+#
 ######################################################################################
 
 use strict;
@@ -13,6 +20,11 @@ use utf8;
 my $del_penalty = 1;
 my $ins_penalty = 1;
 my $rep_penalty = 1.5;
+
+my @KatakanaDB = ('アイウエオァィゥェォ', 'カキクケコガギグゲゴヵヶ', 'サシスセソザジズゼゾ', 'タチツテトダヂヅデドッ', 'ナニヌネノ',  
+		  'ハヒフヘホバビブベボパピプペポヴ', 'マミムメモ', 'ヤユヨャュョ', 'ラリルレロ',  'ワヰヲヱンヮ');
+my $KatakanaKomoji = 'ァィゥェォヵヶャュョッーヶヵヮ';
+my $KatakanaRep2 = 'ァィゥェォヵヶャュョッヶヵヮ';
 
 sub new
 {
@@ -46,7 +58,7 @@ sub calc
 	for (my $j = 0; $j <= @str2; $j++) {
 	    # 1文字削除
 	    my $min_score = $table->[$i-1][$j]{score} + $del_penalty;
-	    my $min_path =  "1:0";
+	    my $min_path = "1:0";
 
 	    # 1文字挿入
 	    if ($j > 0 && $table->[$i][$j-1]{score} + $ins_penalty <= $min_score) {
@@ -58,20 +70,20 @@ sub calc
 	    if ($j > 0) {
 		if ($str1[$i-1] eq $str2[$j-1] && $table->[$i-1][$j-1]{score} <= $min_score) {
 		    $min_score = $table->[$i-1][$j-1]{score};
-		    $min_path = "1:1";
+		    $min_path = "1:1:*";
 		} else {
 		    if ($table->[$i-1][$j-1]{score} + $rep_penalty <= $min_score) {
 			$min_score = $table->[$i-1][$j-1]{score} + $rep_penalty;
 			$min_path = "1:1";
 		    }
 		}
-		
 	    }
 	    $table->[$i][$j]{score} = $min_score;
 	    $table->[$i][$j]{path} = $min_path;
 	}
     }
 
+    # スコアテーブルを表示
     if ($option->{debug}) {
 	for (my $i = 0; $i <= @str1; $i++) {
 	    for (my $j = 0; $j <= @str2; $j++) {
@@ -81,5 +93,16 @@ sub calc
 	}
     }
 
-    return $table->[$#str1+1][$#str2+1]{score};
+    # 結果のトレース
+    my $tmp1 = $#str1 + 1;
+    my $tmp2 = $#str2 + 1;
+    my $path;
+    while ($tmp1 || $tmp2) {
+	$path = "$table->[$tmp1][$tmp2]{path}/$path";
+	my ($i_step, $j_step) = split(/:/, $table->[$tmp1][$tmp2]{path});
+	$tmp1 -= $i_step;
+	$tmp2 -= $j_step;
+    }
+
+    return ($table->[$#str1+1][$#str2+1]{score}, $path);
 }
