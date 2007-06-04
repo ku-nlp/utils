@@ -1,21 +1,13 @@
 #!/usr/bin/perl
 
+# $Id$
+
 use strict;
 use Getopt::Long;
 use Term::ANSIColor;
+use KNP;
 
-my ($sid, $flag, $color, $string, $feature, $detail, %color, %opt);
-
-# defaultの設定
-# %color = ("漢字" => "red");
-# %color = ("NE:ORAGANIZATION" => "blue",
-# 	  "NE:PERSON"        => "red",
-# 	  "NE:LOCATION"      => "green",
-# 	  "NE:ARTIFACT"      => "fuchsia",
-# 	  "NE:DATE"          => "lime",
-# 	  "NE:TIME"          => "aqua",
-# 	  "NE:MONEY"         => "olive",
-# 	  "NE:PERCENT"       => "maroon");
+my ($sid, $flag, %feature, %opt);
 
 GetOptions(\%opt, 'color=s', 'html', 'ansi', 'soft', 'normal', 'hard', 'mrph', 'tag', 'bnst', 'detail', 'line', 'h', 'help');
 
@@ -37,21 +29,46 @@ $opt{ansi} = 1 if (!$opt{html});
 $opt{mrph} = 1 if (!$opt{tag} && !$opt{bnst});
 $opt{normal} = 1 if (!$opt{hard} && !$opt{soft});
 
+# defaultの設定
+# %feature = ("漢字" => "red");
+# if ($opt{ansi}) {
+#     %feature = ("NE:ORGANIZATION" => "blue",
+# 		"NE:PERSON"        => "red",
+# 		"NE:LOCATION"      => "green",
+# 		"NE:ARTIFACT"      => "magenta",
+# 		"NE:DATE"          => "yellow",
+# 		"NE:TIME"          => "cyan",
+# 		"NE:MONEY"         => "olive",
+# 		"NE:PERCENT"       => "maroon");
+# } 
+# else {
+#     %feature = ("NE:ORGANIZATION" => "blue",
+# 		"NE:PERSON"        => "red",
+# 		"NE:LOCATION"      => "green",
+# 		"NE:ARTIFACT"      => "fuchsia",
+# 		"NE:DATE"          => "lime",
+# 		"NE:TIME"          => "aqua",
+# 		"NE:MONEY"         => "olive",
+# 		"NE:PERCENT"       => "maroon");
+# }
+
 if ($opt{color}) {
-    %color=();
     for (split(',', $opt{color})) {
-	/(.*)=(.*)/;
-	$color{$1} = $2;
+	if (/(.*)=(.*)/) {
+	    $feature{$1} = $2;
+	}
     }
 }
 
 print "<html><body>\n" if ($opt{html}); 
 
-$_ = <STDIN>;
-while ($_) {
+my ($knp_buf);
+
+while (<STDIN>) {
+
+    $knp_buf .= $_;
 
     if (/\# S-ID:/) {
-	$flag = 1;
 	/\# S-ID:\S+?(\d+)-\d+\s/;
 	if ($sid && $sid ne $1) {
 	    print "-" x 78 . "\n";
@@ -67,65 +84,66 @@ while ($_) {
 	    $sid = $1;
 	}
     }
+    elsif (/EOS/) {
+	my $result = new KNP::Result($knp_buf);
 
-    if (/EOS/) {
-	if ($flag) {
-	    print "\n"; 
-	    print "<BR>" if ($opt{html});
-	}
-	$flag = 0;
+	&output_result($result);
+	$knp_buf = "";
+
+	print "<BR>" if ($opt{html});
+	print "\n"; 
+
     }
+}
 
-    if (!$flag || /\#/) {
-	$_ = <STDIN>;
-	next;
-    }
+print "</body></html><BR>\n" if ($opt{html});
 
+# 出力
+sub output_result {
+    my ($result) = @_;
+
+    my $string;
     if ($opt{mrph}) {
-	if (/^[\*\+]/) {
-	    $_ = <STDIN>;
-	    next;
+	foreach my $mrph ($result->mrph) {
+	    my $string = $mrph->midasi;
+
+	    # 形態素の場合は品詞も対象に
+	    my $feature =  "<" . $mrph->hinsi . ">" . "<" . $mrph->bunrui . ">" . $mrph->fstring;
+	    &add_color($string, $feature);
 	}
-	$string = (split)[0];
-	# 形態素の場合は品詞も対象に
-	$feature =  "<" . (split)[3] . ">" . "<" . (split)[5] . ">" . (split)[-1];
-	$_ = <STDIN>;
     }
     elsif ($opt{tag}) {
-	if (/^[^\+]/) {
-	    $_ = <STDIN>;
-	    next;
-	}
-	$string = "";
-	$feature = (split)[-1];
-	$_ = <STDIN>;
-	while ($_) {
-	    last if (/^[\*\+]/ || /EOS/);
-	    $string .= (split)[0];
-	    $_ = <STDIN>;
+	foreach my $tag ($result->tag) {
+	    my $string;
+	    foreach my $mrph ($tag->mrph) {
+		$string .= $mrph->midasi;
+	    }
+	    &add_color($string, $tag->fstring);
 	}
     }
     elsif ($opt{bnst}) {
-	if (/^[^\*]/) {
-	    $_ = <STDIN>;
-	    next;
-	}
-	$string = "";
-	$feature = (split)[-1];
-	$_ = <STDIN>;
-	while ($_) {
-	    last if (/^[\*]/ || /EOS/);
-	    $string .= (split)[0] if (!/^\+/);
-	    $_ = <STDIN>;
+	foreach my $bnst ($result->bnst) {
+	    my $string;
+	    foreach my $mrph ($bnst->mrph) {
+		$string .= $mrph->midasi;
+	    }
+	    &add_color($string, $bnst->fstring);
 	}
     }
+}
 
-    $color = $detail = "";
-    for (keys(%color)) {
-	if ($opt{normal} && $feature =~ /<($_.*?)>/ ||
-	    $opt{soft} && $feature =~ /<([^>]*$_.*?)>/ ||
-	    $opt{hard} && $feature =~ /<($_)[:>]/) {
-	    $color = $color{$_};
+# 色をつける
+sub add_color {
+    my ($string, $feature) = @_;
+
+    my $color;
+    my $detail;
+
+    for my $f (keys %feature) {
+	if ($opt{normal} && $feature =~ /<($f.*?)>/ ||
+	    $opt{soft} && $feature =~ /<([^>]*$f.*?)>/ ||
+	    $opt{hard} && $feature =~ /<($f)[:>]/) {
+	    $color = $feature{$f};
 	    if ($opt{detail}) {
 		$detail ? $detail .= ",$1" : $detail = $1;
 	    }
@@ -139,7 +157,7 @@ while ($_) {
 	print "<font color = $color>" if ($color && $detail);
 	print '<code class="attn">&lt;</code>' . $detail 
 	    . '<code class="attn">&gt;</code>'if ($opt{detail} && $detail);
-	print "</font>" if ($color);
+	print '</font>' if ($color);
     }
     else {
 	print color($color) if ($color && !$detail);
@@ -149,9 +167,5 @@ while ($_) {
 	print color("reset") if ($color);
     }	
 
-    if ($opt{line} && !/EOS/) {
-	print "|";
-    }
-
+    print '|' if $opt{line};
 }
-print "</body></html><BR>\n" if ($opt{html});
