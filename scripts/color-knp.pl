@@ -9,10 +9,11 @@ binmode STDIN, ':encoding(euc-jp)';
 binmode STDOUT, ':encoding(euc-jp)';
 use strict;
 use Getopt::Long;
+use Encode;
 use KNP;
 use ColorKNP;
 
-my ($sid, $flag, %feature_color, %opt);
+my ($sid, $flag, @feature_color, %opt);
 
 GetOptions(\%opt, 'color=s', 'bold', 'html', 'ansi', 'soft', 'normal', 'hard', 'mrph', 'tag', 'bnst', 'detail', 'line', 'nedefaultcolor', 'h', 'help');
 
@@ -40,12 +41,12 @@ $opt{normal} = 1 if (!$opt{hard} && !$opt{soft});
 if ($opt{color}) {
     for (split(',', decode('euc-jp', $opt{color}))) {
 	if (/(.*)=(.*)/) {
-	    $feature_color{$1} = $2;
+	    push @feature_color, { feature => $1, color => $2 };
 	}
     }
 }
 
-my $colorknp = new ColorKNP(\%feature_color, \%opt);
+my $colorknp = new ColorKNP(\@feature_color, \%opt);
 
 print "<html><body>\n" if ($opt{html}); 
 

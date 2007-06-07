@@ -12,9 +12,10 @@ sub new {
     my ($this, $feature_color, $opt) = @_;
 
     $this = {
-	feature_color => $feature_color,
 	opt => $opt
 	};
+
+    push @{$this->{feature_color}}, @{$feature_color};
 
     # オプションの初期値
     $this->{opt}{ansi} = 1 unless $this->{opt}{html};
@@ -22,28 +23,28 @@ sub new {
     $this->{opt}{normal} = 1 unless $this->{opt}{hard} || $this->{opt}{soft};
 
     if ($this->{opt}{nedefaultcolor}) {
-	my %default_color;
+	my @default_color;
 	if ($this->{opt}{ansi}) {
-	    %default_color = ("NE:ORGANIZATION" => "blue",
-			      "NE:PERSON"        => "red",
-			      "NE:LOCATION"      => "green",
-			      "NE:ARTIFACT"      => "magenta",
-			      "NE:DATE"          => "yellow",
-			      "NE:TIME"          => "cyan",
-			      "NE:MONEY"         => "olive",
-			      "NE:PERCENT"       => "maroon");
+	    @default_color = ( { feature => 'NE:ORGANIZATION', color => 'blue' },
+			       { feature => 'NE:PERSON', color => 'red' },
+			       { feature => 'NE:LOCATION', color => 'green' },
+			       { feature => 'NE:ARTIFACT', color => 'magenta' },
+			       { feature => 'NE:DATE', color => 'yellow' },
+			       { feature => 'NE:TIME', color => 'cyan' },
+			       { feature => 'NE:MONEY', color => 'olive' },
+			       { feature => 'NE:PERCENT', color => 'maroon' } );
 	} 
 	else {
-	    %default_color = ("NE:ORGANIZATION" => "blue",
-			      "NE:PERSON"        => "red",
-			      "NE:LOCATION"      => "green",
-			      "NE:ARTIFACT"      => "fuchsia",
-			      "NE:DATE"          => "lime",
-			      "NE:TIME"          => "aqua",
-			      "NE:MONEY"         => "olive",
-			      "NE:PERCENT"       => "maroon");
+	    @default_color = ( { feature => 'NE:ORGANIZATION', color => 'blue' },
+			       { feature => 'NE:PERSON', color => 'red' },
+			       { feature => 'NE:LOCATION', color => 'green' },
+			       { feature => 'NE:ARTIFACT', color => 'fuchsia' },
+			       { feature => 'NE:DATE', color => 'lime' },
+			       { feature => 'NE:TIME', color => 'aqua' },
+			       { feature => 'NE:MONEY', color => 'olive' },
+			       { feature => 'NE:PERCENT', color => 'maroon' } );
 	}
-	%{$this->{feature_color}} = (%{$this->{feature_color}}, %default_color);
+	unshift @{$this->{feature_color}}, @default_color;
     }
 
     bless $this;
@@ -100,11 +101,15 @@ sub AddColortoString {
     my $color;
     my $detail;
 
-    for my $f (keys %{$this->{feature_color}}) {
+    for (@{$this->{feature_color}}) {
+	my $f = $_->{feature};
+	my $c = $_->{color};
+
 	if ($this->{opt}{normal} && $feature =~ /<($f.*?)>/ ||
 	    $this->{opt}{soft} && $feature =~ /<([^>]*$f.*?)>/ ||
 	    $this->{opt}{hard} && $feature =~ /<($f)[:>]/) {
-	    $color = $this->{feature_color}{$f};
+
+	    $color = $c;
 	    if ($this->{opt}{detail}) {
 		$detail ? $detail .= ",$1" : $detail = $1;
 	    }
