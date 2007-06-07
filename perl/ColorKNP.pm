@@ -2,9 +2,9 @@ package ColorKNP;
 
 # $Id$
 
-# KNP¤Î²òÀÏ·ë²Ì¤Ë¿§¤ò¤Ä¤±¤ë¥â¥¸¥å¡¼¥ë
+# KNPã®è§£æçµæœã«è‰²ã‚’ã¤ã‘ã‚‹ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«
 
-use encoding 'euc-jp';
+use utf8;
 use Term::ANSIColor;
 use strict;
 
@@ -16,7 +16,7 @@ sub new {
 	opt => $opt
 	};
 
-    # ¥ª¥×¥·¥ç¥ó¤Î½é´üÃÍ
+    # ã‚ªãƒ—ã‚·ãƒ§ãƒ³ã®åˆæœŸå€¤
     $this->{opt}{ansi} = 1 unless $this->{opt}{html};
     $this->{opt}{mrph} = 1 unless $this->{opt}{tag} || $this->{opt}{bnst};
     $this->{opt}{normal} = 1 unless $this->{opt}{hard} || $this->{opt}{soft};
@@ -54,7 +54,7 @@ sub DESTORY {
     my ($this) = @_;
 }
 
-# ¿§¤ò¤Ä¤±¤ë
+# è‰²ã‚’ã¤ã‘ã‚‹
 sub AddColor {
     my ($this, $result) = @_;
 
@@ -64,7 +64,7 @@ sub AddColor {
 	foreach my $mrph ($result->mrph) {
 	    my $string = $mrph->midasi;
 
-	    # ·ÁÂÖÁÇ¤Î¾ì¹ç¤ÏÉÊ»ì¤âÂĞ¾İ¤Ë
+	    # å½¢æ…‹ç´ ã®å ´åˆã¯å“è©ã‚‚å¯¾è±¡ã«
 	    my $feature =  "<" . $mrph->hinsi . ">" . "<" . $mrph->bunrui . ">" . $mrph->fstring;
 	    $ret_string .= $this->AddColortoString($string, $feature);
 	}
@@ -91,7 +91,7 @@ sub AddColor {
     return $ret_string;
 }
 
-# $string¤Ë¿§¤ò¤Ä¤±¤ë
+# $stringã«è‰²ã‚’ã¤ã‘ã‚‹
 sub AddColortoString {
     my ($this, $string, $feature) = @_;
 

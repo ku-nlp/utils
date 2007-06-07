@@ -4,6 +4,9 @@
 
 # usage: echo 'XXX' | juman | knp -tab | perl -I../perl color-knp.pl
 
+use utf8;
+binmode STDIN, ':encoding(euc-jp)';
+binmode STDOUT, ':encoding(euc-jp)';
 use strict;
 use Getopt::Long;
 use KNP;
@@ -31,11 +34,11 @@ $opt{ansi} = 1 if (!$opt{html});
 $opt{mrph} = 1 if (!$opt{tag} && !$opt{bnst});
 $opt{normal} = 1 if (!$opt{hard} && !$opt{soft});
 
-# default¤ÎÀßÄê
-# %feature_color = ("´Á»ú" => "red");
+# defaultã®è¨­å®š
+# %feature_color = ("æ¼¢å­—" => "red");
 
 if ($opt{color}) {
-    for (split(',', $opt{color})) {
+    for (split(',', decode('euc-jp', $opt{color}))) {
 	if (/(.*)=(.*)/) {
 	    $feature_color{$1} = $2;
 	}
