@@ -16,6 +16,36 @@ sub new {
 	opt => $opt
 	};
 
+    # オプションの初期値
+    $this->{opt}{ansi} = 1 unless $this->{opt}{html};
+    $this->{opt}{mrph} = 1 unless $this->{opt}{tag} || $this->{opt}{bnst};
+    $this->{opt}{normal} = 1 unless $this->{opt}{hard} || $this->{opt}{soft};
+
+    if ($this->{opt}{nedefaultcolor}) {
+	my %default_color;
+	if ($this->{opt}{ansi}) {
+	    %default_color = ("NE:ORGANIZATION" => "blue",
+			      "NE:PERSON"        => "red",
+			      "NE:LOCATION"      => "green",
+			      "NE:ARTIFACT"      => "magenta",
+			      "NE:DATE"          => "yellow",
+			      "NE:TIME"          => "cyan",
+			      "NE:MONEY"         => "olive",
+			      "NE:PERCENT"       => "maroon");
+	} 
+	else {
+	    %default_color = ("NE:ORGANIZATION" => "blue",
+			      "NE:PERSON"        => "red",
+			      "NE:LOCATION"      => "green",
+			      "NE:ARTIFACT"      => "fuchsia",
+			      "NE:DATE"          => "lime",
+			      "NE:TIME"          => "aqua",
+			      "NE:MONEY"         => "olive",
+			      "NE:PERCENT"       => "maroon");
+	}
+	%{$this->{feature_color}} = (%{$this->{feature_color}}, %default_color);
+    }
+
     bless $this;
     return $this;
 }
@@ -83,17 +113,19 @@ sub AddColortoString {
     }
 
     if ($this->{opt}{html}) {
+	$ret_string .= '<b>' if $this->{opt}{bold} && $color;
 	$ret_string .= "<font color = $color>" if ($color && !$detail);
 	$ret_string .= $string;
 	$ret_string .= "<font color = $color>" if ($color && $detail);
 	$ret_string .= '<code class="attn">&lt;</code>' . $detail 
 	    . '<code class="attn">&gt;</code>'if ($this->{opt}{detail} && $detail);
 	$ret_string .= '</font>' if ($color);
+	$ret_string .= '</b>' if $this->{opt}{bold} && $color;
     }
     else {
-	$ret_string .= color($color) if ($color && !$detail);
+	$ret_string .= $this->{opt}{bold} ? color("bold $color") : color($color) if ($color && !$detail);
 	$ret_string .= $string;
-	$ret_string .= color($color) if ($color && $detail);
+	$ret_string .= $this->{opt}{bold} ? color("bold $color") : color($color) if ($color && $detail);
 	$ret_string .= "<$detail>" if ($this->{opt}{detail} && $detail);
 	$ret_string .= color("reset") if ($color);
     }	
