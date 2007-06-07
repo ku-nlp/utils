@@ -11,7 +11,7 @@ use ColorKNP;
 
 my ($sid, $flag, %feature_color, %opt);
 
-GetOptions(\%opt, 'color=s', 'html', 'ansi', 'soft', 'normal', 'hard', 'mrph', 'tag', 'bnst', 'detail', 'line', 'nedefaultcolor', 'h', 'help');
+GetOptions(\%opt, 'color=s', 'bold', 'html', 'ansi', 'soft', 'normal', 'hard', 'mrph', 'tag', 'bnst', 'detail', 'line', 'nedefaultcolor', 'h', 'help');
 
 if ($opt{h} || $opt{help}) {
     die "Usage : $0\n" .
@@ -33,28 +33,6 @@ $opt{normal} = 1 if (!$opt{hard} && !$opt{soft});
 
 # defaultの設定
 # %feature_color = ("漢字" => "red");
-if ($opt{nedefaultcolor}) {
-    if ($opt{ansi}) {
-	%feature_color = ("NE:ORGANIZATION" => "blue",
-			  "NE:PERSON"        => "red",
-			  "NE:LOCATION"      => "green",
-			  "NE:ARTIFACT"      => "magenta",
-			  "NE:DATE"          => "yellow",
-			  "NE:TIME"          => "cyan",
-			  "NE:MONEY"         => "olive",
-			  "NE:PERCENT"       => "maroon");
-    } 
-    else {
-	%feature_color = ("NE:ORGANIZATION" => "blue",
-			  "NE:PERSON"        => "red",
-			  "NE:LOCATION"      => "green",
-			  "NE:ARTIFACT"      => "fuchsia",
-			  "NE:DATE"          => "lime",
-			  "NE:TIME"          => "aqua",
-			  "NE:MONEY"         => "olive",
-			  "NE:PERCENT"       => "maroon");
-    }
-}
 
 if ($opt{color}) {
     for (split(',', $opt{color})) {
