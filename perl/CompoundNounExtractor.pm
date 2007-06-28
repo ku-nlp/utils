@@ -140,7 +140,7 @@ sub ExtractCompoundNounfromBnst {
 #		} else {
 #		    push @word_list, [$midasi, $repname, $ne_list{$midasi}];
 #		}
-		push @word_list, { midasi => $midasi, repname => $repname };
+		push @word_list, { midasi => $midasi, repname => $repname, mrphnum => $jnum };
 
 		print "register $midasi\n" if ($this->{option}{debug});
 		$outputted_flag = 1;
