@@ -81,13 +81,13 @@ sub ExtractCompoundNounfromBnst {
 #	# 固有名詞の途中で終るものは登録しない
 #	next unless ($mrph->fstring =~ /<NE:[A-Z]*:(head|middle)>/);
 
-#	#後ろが名詞でなければ次へ
+#	# 一番最後が名詞でなければ次へ
 	next unless ($mrph->fstring =~ /<(?:名詞相当語|カタカナ)>/);
 
 	# 形式名詞（もの, こと..)/副詞的名詞(よう, とき..)
 	next if $mrph->bunrui =~ /(?:副詞的|形式)名詞/;
 
-	# 後ろが記号や数字なら次へ
+	# 一番最後が記号や数字なら次へ
 	# 名詞相当語 かつ 記号 .. ●,《, ＠など
 	# 名詞相当語 かつ 時間辞 .. 1960年代半ばの「代」など
 	# 数字 .. もし入れると新聞記事やブログの日付が大量に混入?
@@ -100,7 +100,7 @@ sub ExtractCompoundNounfromBnst {
 	my $jnum = 0;
 	my $midasi = '';
 	my $repname = '';
-	#後ろを固定してループ
+	#　一番最後を固定してループ
 	for (my $j = $i; $j >= 0; $j--) {
 
 	    # 名詞か独立タグ接頭辞なら連結
