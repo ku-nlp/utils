@@ -132,7 +132,7 @@ sub ExtractCompoundNounfromBnst {
 
 	    # 複合語の途中に来ても良いが、先頭に来るのは変なものを排除する条件群
 	    if ($mrph2->fstring =~ /<名詞相当語>|<漢字>|<独立タグ接頭辞>/
-		&& $mrph2->fstring !~ /<付属>/  # 「-性海棉状脳症」などを除く
+		&& $mrph2->hinsi ne '接尾辞' # 「-性海棉状脳症」などを除く
 #		&& !$self->is_stopword ($mrph2, 'prefix')
 		&& $mrph2->fstring !~ /末尾/) { # 人名末尾, 組織名末尾などで終るものを除く
 #		if ($ne_list{$midasi}) {
