@@ -149,7 +149,7 @@ sub ExtractCompoundNounfromBnst {
 
 	# 最長
 	if ($option->{longest} && $outputted_flag) {
-	    return @word_list[-1];
+	    return $word_list[-1];
 	}
     }
     return wantarray ? @word_list : $word_list[-1];
