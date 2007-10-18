@@ -23,9 +23,9 @@ package CompoundNounExtractor;
 
 use strict;
 use utf8;
-use vars qw($jnum_max);
+use vars qw($MRPH_NUM_MAX);
 
-$jnum_max = 100; # 複合名詞の最大数
+$MRPH_NUM_MAX = 100; # 複合名詞中の形態素数の最大上限数
 
 sub new {
     my ($this, $option) = @_;
@@ -95,7 +95,7 @@ sub ExtractCompoundNounfromBnst {
 	# 「イースター島再来訪」から「イースター島再」を排除
 	next if ($mrph->fstring =~ /<独立タグ接頭辞>/);
 
-	my $jnum = 0;
+	my $mrph_num = 0;
 	my $midasi = '';
 	my $repname = '';
 	#　一番最後を固定してループ
@@ -117,16 +117,16 @@ sub ExtractCompoundNounfromBnst {
 
 	    last if $mrph2->fstring =~ /<記号>/ || $mrph2->bunrui =~ /(?:副詞的|形式)名詞/;
 
-	    $jnum++;
+	    $mrph_num++;
 
 	    $midasi = $mrph2->midasi . $midasi;
 	    my $tmp = $mrph2->repname ();
 	    $repname = (($tmp)? $tmp : $mrph2->midasi) . (($repname)?  '+' .  $repname : '');
 
-	    last if ($jnum > $jnum_max);
+	    last if ($mrph_num > $MRPH_NUM_MAX);
 
 	    # 一語ばかりからなる複合語は大抵ごみ (文字化けなど)
-	    last if ($jnum >= 5 && length ($midasi) <= $jnum);
+	    last if ($mrph_num >= 5 && length ($midasi) <= $mrph_num);
 
 	    # 複合語の途中に来ても良いが、先頭に来るのは変なものを排除する条件群
 	    if ($mrph2->fstring =~ /<名詞相当語>|<漢字>|<独立タグ接頭辞>/
@@ -138,7 +138,7 @@ sub ExtractCompoundNounfromBnst {
 #		} else {
 #		    push @word_list, [$midasi, $repname, $ne_list{$midasi}];
 #		}
-		push @word_list, { midasi => $midasi, repname => $repname, mrphnum => $jnum };
+		push @word_list, { midasi => $midasi, repname => $repname, mrphnum => $mrph_num };
 
 		print "register $midasi\n" if ($this->{option}{debug});
 		$outputted_flag = 1;
