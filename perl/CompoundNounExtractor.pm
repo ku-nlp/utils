@@ -80,7 +80,8 @@ sub ExtractCompoundNounfromBnst {
 #	next unless ($mrph->fstring =~ /<NE:[A-Z]*:(head|middle)>/);
 
 #	# 一番最後が名詞でなければ次へ
-	next unless ($mrph->fstring =~ /<(?:名詞相当語|カタカナ)>/);
+	# <かな漢字>を条件に入れることにより、「東京都」の「都」が除かれなくなる
+	next unless ($mrph->fstring =~ /<(?:名詞相当語|かな漢字|カタカナ)>/);
 
 	# 形式名詞（もの, こと..)/副詞的名詞(よう, とき..)
 	next if $mrph->bunrui =~ /(?:副詞的|形式)名詞/;
