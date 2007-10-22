@@ -23,9 +23,11 @@ package CompoundNounExtractor;
 
 use strict;
 use utf8;
-use vars qw($MRPH_NUM_MAX);
+use vars qw($MRPH_NUM_MAX $NG_CHAR);
 
 $MRPH_NUM_MAX = 100; # 複合名詞中の形態素数の最大上限数
+
+$NG_CHAR = '・|っ|ぁ|ぃ|ぅ|ぇ|ぉ|ゃ|ゅ|ょ|ー'; # 拗音、長音など
 
 sub new {
     my ($this, $option) = @_;
@@ -94,7 +96,10 @@ sub ExtractCompoundNounfromBnst {
 
 	# 接頭辞で終ってはいけない
 	# 「イースター島再来訪」から「イースター島再」を排除
-	next if ($mrph->fstring =~ /<独立タグ接頭辞>/);
+	next if ($mrph->fstring =~ /<非?独立タグ接頭辞>/);
+
+	# 非独立接尾辞はNG ただし<意味有>がついている(個、つ、県、化、性など)ならばOK
+	next if $mrph->fstring =~ /<非独立タグ接尾辞>/ && $mrph->fstring !~ /<意味有>/;
 
 	my $mrph_num = 0;
 	my $midasi = '';
@@ -133,7 +138,8 @@ sub ExtractCompoundNounfromBnst {
 	    if ($mrph2->fstring =~ /<名詞相当語>|<漢字>|<独立タグ接頭辞>/
 		&& $mrph2->hinsi ne '接尾辞' # 「-性海棉状脳症」などを除く
 #		&& !$self->is_stopword ($mrph2, 'prefix')
-		&& $mrph2->fstring !~ /末尾/) { # 人名末尾, 組織名末尾などで終るものを除く
+#		&& $mrph2->fstring !~ /末尾/ && # 人名末尾, 組織名末尾などで終るものを除く
+		&& $mrph2->midasi !~ /^(?:$NG_CHAR)/) {
 #		if ($ne_list{$midasi}) {
 #		    push @word_list, [$midasi, $repname];
 #		} else {
