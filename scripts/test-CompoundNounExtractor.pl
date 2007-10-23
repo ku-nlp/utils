@@ -15,10 +15,12 @@ use CompoundNounExtractor;
 use Getopt::Long;
 
 my (%opt);
-GetOptions(\%opt, 'longest');
+GetOptions(\%opt, 'longest', 'debug');
 &usage if $opt{help};
 
-my $cne = new CompoundNounExtractor;
+my $option;
+$option->{debug} = 1 if $opt{debug};
+my $cne = new CompoundNounExtractor($option);
 
 my $buf;
 
