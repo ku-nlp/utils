@@ -51,10 +51,25 @@ sub ExtractCompoundNounfromBnst {
     my ($this, $bnst, $option) = @_;
 
     my @word_list;
+    
+    my $input_is_array_flag = 0;
+
+    my @mrph_list;
+
+    # bnstの配列が入力された場合
+    if (ref($bnst) eq 'ARRAY') {
+	for my $b ( @{$bnst} ) {
+	    push(@mrph_list, $b->mrph);
+	}
+	$input_is_array_flag = 1;
+    }
+    # bnstが一個入力された場合
+    else {
+	@mrph_list = $bnst->mrph;
+    }
 
     # 複合名詞の先頭/真ん中/末尾に来ることができるかをチェック
     my (@is_ok_for_head, @is_ok_for_mid, @is_ok_for_tail); 
-    my @mrph_list = $bnst->mrph;
     for my $i (0..$#mrph_list){
 	my $mrph = $mrph_list[$i];
 	my $midasi  = $mrph->midasi;
@@ -66,7 +81,7 @@ sub ExtractCompoundNounfromBnst {
 	$is_ok_for_head[$i] = &check_condition_head($midasi, $fstring, $bunrui, $hinsi);
 
 	# 真ん中
-	$is_ok_for_mid[$i] = &check_condition_mid($midasi, $fstring, $bunrui, $hinsi);
+	$is_ok_for_mid[$i] = &check_condition_mid($midasi, $fstring, $bunrui, $hinsi, $input_is_array_flag);
 
 	# 末尾
 	$is_ok_for_tail[$i] = &check_condition_tail($midasi, $fstring, $bunrui, $hinsi);
@@ -170,9 +185,13 @@ sub check_condition_head {
 
 # 真ん中に来れるかどうかをチェック
 sub check_condition_mid {
-    my ($midasi, $fstring, $bunrui, $hinsi) = @_;
+    my ($midasi, $fstring, $bunrui, $hinsi, $input_is_array_flag) = @_;
 
-    if ($fstring !~ /<(?:名詞相当語|漢字|独立タグ接頭辞|複合←)>/
+    # 入力が文節の配列の場合は、助詞の「の」でもOK
+    if ($input_is_array_flag && $midasi eq 'の' && $hinsi eq '助詞'){
+	return 1;
+    }
+    elsif ($fstring !~ /<(?:名詞相当語|漢字|独立タグ接頭辞|複合←)>/
 	|| $fstring =~ /<記号>/
 	|| $bunrui =~ /(?:副詞的|形式)名詞/) {
 	return 0;
