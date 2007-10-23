@@ -78,13 +78,13 @@ sub ExtractCompoundNounfromBnst {
 	my $hinsi   = $mrph->hinsi;
 
 	# 先頭
-	$is_ok_for_head[$i] = &check_condition_head($midasi, $fstring, $bunrui, $hinsi);
+	$is_ok_for_head[$i] = $this->CheckConditionHead($midasi, $fstring, $bunrui, $hinsi);
 
 	# 真ん中
-	$is_ok_for_mid[$i] = &check_condition_mid($midasi, $fstring, $bunrui, $hinsi, $input_is_array_flag);
+	$is_ok_for_mid[$i] = $this->CheckConditionMid($midasi, $fstring, $bunrui, $hinsi, $input_is_array_flag);
 
 	# 末尾
-	$is_ok_for_tail[$i] = &check_condition_tail($midasi, $fstring, $bunrui, $hinsi);
+	$is_ok_for_tail[$i] = $this->CheckConditionTail($midasi, $fstring, $bunrui, $hinsi, \@mrph_list, $i);
     }
 
     # debug print
@@ -187,14 +187,18 @@ sub ExtractCompoundNounfromBnst {
 }
 
 # 先頭に来れるかどうかをチェック
-sub check_condition_head {
-    my ($midasi, $fstring, $bunrui, $hinsi) = @_;
+sub CheckConditionHead {
+    my ($this, $midasi, $fstring, $bunrui, $hinsi) = @_;
 
     if ($fstring =~ /<名詞相当語>|<漢字>|<独立タグ接頭辞>/
 	&& $hinsi ne '接尾辞' # 「-性海棉状脳症」などを除く
 #		&& !$self->is_stopword ($mrph2, 'prefix')
 #		&& $mrph2->fstring !~ /末尾/ && # 人名末尾, 組織名末尾などで終るものを除く
 	&& $midasi !~ /^(?:$NG_CHAR)/) {
+
+	if ($this->{option}{clustering} && $fstring =~ /<独立タグ接頭辞>/ && $midasi eq '本') {
+	    return 0;
+	}
 	return 1;
     }
     else {
@@ -203,8 +207,8 @@ sub check_condition_head {
 }
 
 # 真ん中に来れるかどうかをチェック
-sub check_condition_mid {
-    my ($midasi, $fstring, $bunrui, $hinsi, $input_is_array_flag) = @_;
+sub CheckConditionMid {
+    my ($this, $midasi, $fstring, $bunrui, $hinsi, $input_is_array_flag) = @_;
 
     # 入力が文節の配列の場合は、助詞の「の」でもOK
     if ($input_is_array_flag && $midasi eq 'の' && $hinsi eq '助詞'){
@@ -214,6 +218,12 @@ sub check_condition_mid {
 	   || $fstring =~ /<記号>/
 	   || $midasi =~ /・・/
 	   || $bunrui =~ /(?:副詞的|形式)名詞/) {
+
+	if ($this->{option}{clustering}) {
+	    if ($fstring =~ /<記号>/ && $midasi eq '　') {
+		return 1;
+	    }
+	}
 	return 0;
     }
     else {
@@ -222,8 +232,8 @@ sub check_condition_mid {
 }
 
 # 最後に来れるかどうかをチェック
-sub check_condition_tail {
-    my ($midasi, $fstring, $bunrui, $hinsi) = @_;
+sub CheckConditionTail {
+    my ($this, $midasi, $fstring, $bunrui, $hinsi, $mrph_list, $i) = @_;
 
     if ($midasi =~ /^\p{Hiragana}$/ # ひらがな一文字
 	# || $mrph->fstring =~ /<NE:[A-Z]*:(head|middle)>/ # 固有名詞の途中で終るものは登録しない
@@ -234,7 +244,15 @@ sub check_condition_tail {
                                        # 数字 .. もし入れると新聞記事やブログの日付が大量に混入?
 	|| $fstring =~ /<非?独立タグ接頭辞>/ # 「イースター島再来訪」から「イースター島再」を排除
 	|| $midasi =~ /・/
-	|| ($fstring =~ /<非独立タグ接尾辞>/ && $fstring !~ /<意味有>/)) { # 非独立接尾辞はNG ただし<意味有>がついている(個、つ、県、化、性など)ならばOK
+	|| ($fstring =~ /<非独立タグ接尾辞>/ && $fstring !~ /<意味有>/) # 非独立接尾辞はNG ただし<意味有>がついている(個、つ、県、化、性など)ならばOK
+	|| ($this->{option}{clustering} && $midasi eq '等')) {
+
+	if ($this->{option}{clustering}) {
+	    # 「安倍晋三」の「三」のように、その前の形態素の品詞が人名の場合はOK
+	    if ($fstring =~ /<数字>/ && $i != 0 && $mrph_list->[$i-1]->bunrui eq '人名') {
+		return 1;
+	    }
+	}
 	return 0;
     }
     else {
