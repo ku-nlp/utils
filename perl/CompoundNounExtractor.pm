@@ -159,9 +159,28 @@ sub ExtractCompoundNounfromBnst {
 	    $outputted_flag = 1;
 	}
 
-	# 最長
-	if ($option->{longest} && $outputted_flag) {
-	    return $word_list[-1];
+	# 入力が複数文節の場合、最長のものにflagを立てる
+	# 例：
+	# 入力＝「世界各国の民主主義」ならば、「世界各国の民主主義」にflagを、
+	# 入力＝「世界平和と戦争」ならば、「世界平和」と「戦争」にflagを立てる
+	if ($input_is_array_flag) {
+	    if ($longest_tail_flag == 1 && $outputted_flag) {
+		for my $i (0 .. $#mrph_used_num) {
+		    if (defined $mrph_used_num[$i]) {
+			if ($mrph_used_num[$i] == 1) {
+			    $word_list[-1]->{longest_flag} = 1;
+			} else {
+			    last;
+			}
+		    }
+		}
+	    }
+	}
+	else {
+	    # 最長
+	    if ($option->{longest} && $outputted_flag) {
+		return $word_list[-1];
+	    }
 	}
     }
     return wantarray ? @word_list : $word_list[-1];
@@ -192,8 +211,9 @@ sub check_condition_mid {
 	return 1;
     }
     elsif ($fstring !~ /<(?:名詞相当語|漢字|独立タグ接頭辞|複合←)>/
-	|| $fstring =~ /<記号>/
-	|| $bunrui =~ /(?:副詞的|形式)名詞/) {
+	   || $fstring =~ /<記号>/
+	   || $midasi =~ /・・/
+	   || $bunrui =~ /(?:副詞的|形式)名詞/) {
 	return 0;
     }
     else {
@@ -213,6 +233,7 @@ sub check_condition_tail {
                                        # 名詞相当語 かつ 時間辞 .. 1960年代半ばの「代」など
                                        # 数字 .. もし入れると新聞記事やブログの日付が大量に混入?
 	|| $fstring =~ /<非?独立タグ接頭辞>/ # 「イースター島再来訪」から「イースター島再」を排除
+	|| $midasi =~ /・/
 	|| ($fstring =~ /<非独立タグ接尾辞>/ && $fstring !~ /<意味有>/)) { # 非独立接尾辞はNG ただし<意味有>がついている(個、つ、県、化、性など)ならばOK
 	return 0;
     }
