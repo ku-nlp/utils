@@ -102,7 +102,7 @@ sub ExtractCompoundNounfromBnst {
     my @mrph_used_num; # 各形態素について、複合名詞の要素となった回数を記録
     for my $i (reverse(0..$#mrph_list)){
 
-	my $mrph_num = 0;
+	my $mrphnum = 0;
 	my $midasi = '';
 	my $repname = '';
 	my $jiritsu_mrph_num = 0; #接頭辞、接尾辞を除いた形態素数
@@ -129,22 +129,22 @@ sub ExtractCompoundNounfromBnst {
 		last;
 	    }
 
-	    $mrph_num++;
+	    $mrphnum++;
 	    $jiritsu_mrph_num++ if ($hinsi_j ne '接頭辞' && $hinsi_j ne '接尾辞');
 
 	    $midasi = $midasi_j . $midasi;
 	    my $tmp = $mrph_j->repname();
 	    $repname = (($tmp)? $tmp : $midasi_j) . (($repname)?  '+' .  $repname : '');
 
-	    last if ($mrph_num > $MRPH_NUM_MAX);
+	    last if ($mrphnum > $MRPH_NUM_MAX);
 
 	    # 一語ばかりからなる複合語は大抵ごみ (文字化けなど)
-	    last if ($mrph_num >= 5 && length ($midasi) <= $mrph_num);
+	    last if ($mrphnum >= 5 && length ($midasi) <= $mrphnum);
 
 	    next if (!$is_ok_for_head[$j]);
 
 	    $mrph_used_num[$j]++;
-	    push @word_list, { midasi => $midasi, repname => $repname, mrphnum => $mrph_num , jiritsu_mrph_num => $jiritsu_mrph_num};
+	    push @word_list, { midasi => $midasi, repname => $repname, mrphnum => $mrphnum , jiritsu_mrph_num => $jiritsu_mrph_num};
 
 	    # 末尾の形態素が未定義語ならば、その複合名詞にundef_flagを追加
 	    # ただし、「品曖-その他」または「品曖-カタカナ」のみを未定義語とみなし、
