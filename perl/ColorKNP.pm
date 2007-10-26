@@ -22,6 +22,26 @@ sub new {
     $this->{opt}{mrph} = 1 unless $this->{opt}{tag} || $this->{opt}{bnst};
     $this->{opt}{normal} = 1 unless $this->{opt}{hard} || $this->{opt}{soft};
 
+    if ($this->{opt}{categorydefaultcolor}) {
+	my @default_color;
+	if ($this->{opt}{ansi}) {
+	    @default_color = ( { feature => 'カテゴリ:組織・団体', color => 'blue' }, # ORGANIZATION
+			       { feature => 'カテゴリ:人工物', color => 'magenta' }, # ARTIFACT
+			       { feature => 'カテゴリ:人', color => 'red' }, # PERSON
+			       { feature => 'カテゴリ:場所', color => 'green' }, # LOCATION
+			       );
+	} 
+	else {
+	    @default_color = ( { feature => 'カテゴリ:組織・団体', color => 'blue' },
+			       { feature => 'カテゴリ:人工物', color => 'fuchsia' },
+			       { feature => 'カテゴリ:人', color => 'red' },
+			       { feature => 'カテゴリ:場所', color => 'green' },
+			       { feature => 'カテゴリ:時間', color => 'aqua' },
+			       );
+	}
+	unshift @{$this->{feature_color}}, @default_color;
+    }
+
     if ($this->{opt}{nedefaultcolor}) {
 	my @default_color;
 	if ($this->{opt}{ansi}) {
@@ -39,13 +59,15 @@ sub new {
 			       { feature => 'NE:PERSON', color => 'red' },
 			       { feature => 'NE:LOCATION', color => 'green' },
 			       { feature => 'NE:ARTIFACT', color => 'fuchsia' },
-			       { feature => 'NE:DATE', color => 'lime' },
+			       { feature => 'NE:DATE', color => 'plum' },
 			       { feature => 'NE:TIME', color => 'aqua' },
 			       { feature => 'NE:MONEY', color => 'olive' },
 			       { feature => 'NE:PERCENT', color => 'maroon' } );
 	}
 	unshift @{$this->{feature_color}}, @default_color;
     }
+
+    push @{$this->{decoration}}, { feature => 'NE', tag => 'u' };
 
     bless $this;
     return $this;
@@ -117,7 +139,20 @@ sub AddColortoString {
 	}
     }
 
+    my $tag;
+    for (@{$this->{decoration}}) {
+	my $f = $_->{feature};
+	my $t = $_->{tag};
+
+	if ($this->{opt}{normal} && $feature =~ /<($f.*?)>/ ||
+	    $this->{opt}{soft} && $feature =~ /<([^>]*$f.*?)>/ ||
+	    $this->{opt}{hard} && $feature =~ /<($f)[:>]/) {
+	    $tag = $t;
+	}
+    }
+
     if ($this->{opt}{html}) {
+	$ret_string .= "<$tag>" if $tag;
 	$ret_string .= '<b>' if $this->{opt}{bold} && $color;
 	$ret_string .= "<font color = $color>" if ($color && !$detail);
 	$ret_string .= $string;
@@ -126,6 +161,7 @@ sub AddColortoString {
 	    . '<code class="attn">&gt;</code>'if ($this->{opt}{detail} && $detail);
 	$ret_string .= '</font>' if ($color);
 	$ret_string .= '</b>' if $this->{opt}{bold} && $color;
+	$ret_string .= "</$tag>" if $tag;
     }
     else {
 	$ret_string .= $this->{opt}{bold} ? color("bold $color") : color($color) if ($color && !$detail);
