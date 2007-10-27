@@ -25,7 +25,7 @@ use strict;
 use utf8;
 use vars qw($MRPH_NUM_MAX $NG_CHAR);
 
-$MRPH_NUM_MAX = 100; # 複合名詞中の形態素数の最大上限数
+$MRPH_NUM_MAX = 25; # 複合名詞中の形態素数の最大上限数
 
 $NG_CHAR = '・|っ|ぁ|ぃ|ぅ|ぇ|ぉ|ゃ|ゅ|ょ|ー'; # 拗音、長音など
 
@@ -35,6 +35,10 @@ sub new {
     $this = {};
 
     $this->{option} = $option;
+
+    if (defined $option->{MRPH_NUM_MAX}) {
+	$MRPH_NUM_MAX = $option->{MRPH_NUM_MAX};
+    }
 
     bless $this;
 
