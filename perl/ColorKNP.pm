@@ -32,11 +32,12 @@ sub new {
 			       );
 	} 
 	else {
-	    @default_color = ( { feature => 'カテゴリ:組織・団体', starttag => qq(span style="border-bottom:solid 2px blue;"), endtag => 'span' },
-			       { feature => 'カテゴリ:人工物', starttag => qq(span style="border-bottom:solid 2px fuchsia;"), endtag => 'span' },
-			       { feature => 'カテゴリ:人', starttag => qq(span style="border-bottom:solid 2px red;"), endtag => 'span' },
-			       { feature => 'カテゴリ:場所', starttag => qq(span style="border-bottom:solid 2px green;"), endtag => 'span' },
-			       { feature => 'カテゴリ:時間', starttag => qq(span style="border-bottom:solid 2px aqua;"), endtag => 'span' },
+	    my $str = 'border-bottom:solid 1px';
+	    @default_color = ( { feature => 'カテゴリ:組織・団体', starttag => qq(span style="$str blue;"), endtag => 'span' },
+			       { feature => 'カテゴリ:人工物', starttag => qq(span style="$str fuchsia;"), endtag => 'span' },
+			       { feature => 'カテゴリ:人', starttag => qq(span style="$str red;"), endtag => 'span' },
+			       { feature => 'カテゴリ:場所', starttag => qq(span style="$str green;"), endtag => 'span' },
+			       { feature => 'カテゴリ:時間', starttag => qq(span style="$str aqua;"), endtag => 'span' },
 			       );
 	}
 	unshift @{$this->{feature_color}}, @default_color;
