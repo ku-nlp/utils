@@ -25,18 +25,18 @@ sub new {
     if ($this->{opt}{categorydefaultcolor}) {
 	my @default_color;
 	if ($this->{opt}{ansi}) {
-	    @default_color = ( { feature => 'カテゴリ:組織・団体', color => 'blue' }, # ORGANIZATION
+	    @default_color = ( { feature => 'カテゴリ:組織・団体', color => 'blue'  }, # ORGANIZATION
 			       { feature => 'カテゴリ:人工物', color => 'magenta' }, # ARTIFACT
 			       { feature => 'カテゴリ:人', color => 'red' }, # PERSON
 			       { feature => 'カテゴリ:場所', color => 'green' }, # LOCATION
 			       );
 	} 
 	else {
-	    @default_color = ( { feature => 'カテゴリ:組織・団体', color => 'blue' },
-			       { feature => 'カテゴリ:人工物', color => 'fuchsia' },
-			       { feature => 'カテゴリ:人', color => 'red' },
-			       { feature => 'カテゴリ:場所', color => 'green' },
-			       { feature => 'カテゴリ:時間', color => 'aqua' },
+	    @default_color = ( { feature => 'カテゴリ:組織・団体', starttag => qq(span style="border-bottom:solid 2px blue;"), endtag => 'span' },
+			       { feature => 'カテゴリ:人工物', starttag => qq(span style="border-bottom:solid 2px fuchsia;"), endtag => 'span' },
+			       { feature => 'カテゴリ:人', starttag => qq(span style="border-bottom:solid 2px red;"), endtag => 'span' },
+			       { feature => 'カテゴリ:場所', starttag => qq(span style="border-bottom:solid 2px green;"), endtag => 'span' },
+			       { feature => 'カテゴリ:時間', starttag => qq(span style="border-bottom:solid 2px aqua;"), endtag => 'span' },
 			       );
 	}
 	unshift @{$this->{feature_color}}, @default_color;
@@ -120,60 +120,63 @@ sub AddColortoString {
 
     my $ret_string;
 
-    my $color;
     my $detail;
+
+    my $flag = 0; # 条件がマッチしたら1になる
 
     for (@{$this->{feature_color}}) {
 	my $f = $_->{feature};
-	my $c = $_->{color};
+	my $color = $_->{color};
+	my $starttag = $_->{starttag};
+	my $endtag = $_->{endtag};
 
 	if ($this->{opt}{normal} && $feature =~ /<($f.*?)>/ ||
 	    $this->{opt}{soft} && $feature =~ /<([^>]*$f.*?)>/ ||
 	    $this->{opt}{hard} && $feature =~ /<($f)[:>]/) {
 
-	    $color = $c;
 	    if ($this->{opt}{detail}) {
 		$detail ? $detail .= ",$1" : $detail = $1;
 	    }
-	    last;
+	    my ($pre, $post) = $this->GetTag($string, $color, $starttag, $endtag, $detail);
+	    $string = $pre . $string . $post;
+	    $flag = 1;
+	    last unless $this->{opt}{allow_multiple_match};
 	}
     }
 
-    my $tag;
-    for (@{$this->{decoration}}) {
-	my $f = $_->{feature};
-	my $t = $_->{tag};
-
-	if ($this->{opt}{normal} && $feature =~ /<($f.*?)>/ ||
-	    $this->{opt}{soft} && $feature =~ /<([^>]*$f.*?)>/ ||
-	    $this->{opt}{hard} && $feature =~ /<($f)[:>]/) {
-	    $tag = $t;
-	}
-    }
-
-    if ($this->{opt}{html}) {
-	$ret_string .= "<$tag>" if $tag;
-	$ret_string .= '<b>' if $this->{opt}{bold} && $color;
-	$ret_string .= "<font color = $color>" if ($color && !$detail);
-	$ret_string .= $string;
-	$ret_string .= "<font color = $color>" if ($color && $detail);
-	$ret_string .= '<code class="attn">&lt;</code>' . $detail 
-	    . '<code class="attn">&gt;</code>'if ($this->{opt}{detail} && $detail);
-	$ret_string .= '</font>' if ($color);
-	$ret_string .= '</b>' if $this->{opt}{bold} && $color;
-	$ret_string .= "</$tag>" if $tag;
-    }
-    else {
-	$ret_string .= $this->{opt}{bold} ? color("bold $color") : color($color) if ($color && !$detail);
-	$ret_string .= $string;
-	$ret_string .= $this->{opt}{bold} ? color("bold $color") : color($color) if ($color && $detail);
-	$ret_string .= "<$detail>" if ($this->{opt}{detail} && $detail);
-	$ret_string .= color("reset") if ($color);
-    }	
+    $ret_string .= $string;
 
     $ret_string .= '|' if $this->{opt}{line};
 
     return $ret_string;
+}
+
+sub GetTag {
+    my ($this, $string, $color, $starttag, $endtag, $detail) = @_;
+
+    my ($pre, $post);
+
+    if ($this->{opt}{html}) {
+	$pre .= "<$starttag>" if $starttag;
+	$pre .= '<b>' if $this->{opt}{bold} && $color;
+	$pre .= "<font color = $color>" if ($color && !$detail);
+
+	$post .= "<font color = $color>" if ($color && $detail);
+	$post .= '<code class="attn">&lt;</code>' . $detail 
+	    . '<code class="attn">&gt;</code>'if ($this->{opt}{detail} && $detail);
+	$post .= '</font>' if ($color);
+	$post .= '</b>' if $this->{opt}{bold} && $color;
+	$post .= "</$endtag>" if $endtag;
+    }
+    else {
+	$pre .= $this->{opt}{bold} ? color("bold $color") : color($color) if ($color && !$detail);
+
+	$post .= $this->{opt}{bold} ? color("bold $color") : color($color) if ($color && $detail);
+	$post .= "<$detail>" if ($this->{opt}{detail} && $detail);
+	$post .= color("reset") if ($color);
+    }
+
+    return ($pre, $post);
 }
 
 1;
