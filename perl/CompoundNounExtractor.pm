@@ -23,11 +23,12 @@ package CompoundNounExtractor;
 
 use strict;
 use utf8;
-use vars qw($MRPH_NUM_MAX $LENGTH_MAX $LENGTH_MAX_ONE_WORD_EACH $NG_CHAR);
+use vars qw($MRPH_NUM_MAX $LENGTH_MAX $LENGTH_MAX_ONE_WORD_EACH $CENTERED_DOT_NUM_MAX $NG_CHAR);
 
 $MRPH_NUM_MAX = 25; # 複合名詞中の形態素数の最大上限数
 $LENGTH_MAX = 30; # 複合名詞の文字数の最大上限数;
 $LENGTH_MAX_ONE_WORD_EACH = 10; # 複合名詞の文字数の最大上限数(すべての形態素が1文字の場合);
+$CENTERED_DOT_NUM_MAX = 3; # 中黒の最大上限数
 
 $NG_CHAR = '・|っ|ぁ|ぃ|ぅ|ぇ|ぉ|ゃ|ゅ|ょ|ー'; # 拗音、長音など
 
@@ -48,6 +49,10 @@ sub new {
 
     if (defined $option->{LENGTH_MAX_ONE_WORD_EACH}) {
 	$LENGTH_MAX_ONE_WORD_EACH = $option->{LENGTH_MAX_ONE_WORD_EACH};
+    }
+
+    if (defined $option->{CENTERED_DOT_NUM_MAX}) {
+	$CENTERED_DOT_NUM_MAX = $option->{CENTERED_DOT_NUM_MAX};
     }
 
     bless $this;
@@ -153,6 +158,12 @@ sub ExtractCompoundNounfromBnst {
 	    # 形態素数の上限、文字数の上限を超えた場合
 	    # 一語ばかりからなる複合語は大抵ごみ (文字化けなど)
 	    if ($mrphnum >= $MRPH_NUM_MAX || length ($midasi) >= $LENGTH_MAX || ($mrphnum == $LENGTH_MAX_ONE_WORD_EACH && length ($midasi) == $mrphnum)) {
+		return wantarray ? () : '';
+	    }
+
+	    # 中黒の数の上限
+	    my $centered_dot_num = ($midasi =~ s/・/・/g);
+	    if ($CENTERED_DOT_NUM_MAX != -1 && $centered_dot_num >= $CENTERED_DOT_NUM_MAX) {
 		return wantarray ? () : '';
 	    }
 
