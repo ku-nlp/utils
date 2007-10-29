@@ -15,13 +15,15 @@ use CompoundNounExtractor;
 use Getopt::Long;
 
 my (%opt);
-GetOptions(\%opt, 'longest', 'clustering', 'mrphnummax=i', 'debug');
+GetOptions(\%opt, 'longest', 'clustering', 'mrphnummax=i', 'lengthmax=i', 'length_max_one_word_each=i', 'debug');
 &usage if $opt{help};
 
 my $option;
 $option->{debug} = 1 if $opt{debug};
 $option->{clustering} = 1 if $opt{clustering};
 $option->{MRPH_NUM_MAX} = $opt{mrphnummax} if $opt{mrphnummax};
+$option->{LENGTH_MAX} = $opt{lengthmax} if $opt{lengthmax};
+$option->{LENGTH_MAX_ONE_WORD_EACH} = $opt{length_max_one_word_each} if $opt{length_max_one_word_each};
 my $cne = new CompoundNounExtractor($option);
 
 my $buf;
