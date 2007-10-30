@@ -69,7 +69,7 @@ sub DESTROY {
 sub ExtractCompoundNounfromBnst {
     my ($this, $bnst, $option) = @_;
 
-    my @word_list;
+    my @ret_word_list;
     
     my $input_is_array_flag = 0;
 
@@ -96,14 +96,14 @@ sub ExtractCompoundNounfromBnst {
 	my $bunrui  = $mrph->bunrui;
 	my $hinsi   = $mrph->hinsi;
 
-	# 先頭
-	$is_ok_for_head[$i] = $this->CheckConditionHead($midasi, $fstring, $bunrui, $hinsi);
-
 	# 真ん中
 	$is_ok_for_mid[$i] = $this->CheckConditionMid($midasi, $fstring, $bunrui, $hinsi, $input_is_array_flag);
 
+	# 先頭
+	$is_ok_for_head[$i] = $is_ok_for_mid[$i] == 0 ? 0 : $this->CheckConditionHead($midasi, $fstring, $bunrui, $hinsi);
+
 	# 末尾
-	$is_ok_for_tail[$i] = $this->CheckConditionTail($midasi, $fstring, $bunrui, $hinsi, \@mrph_list, $i);
+	$is_ok_for_tail[$i] = $is_ok_for_mid[$i] == 0 ? 0 : $this->CheckConditionTail($midasi, $fstring, $bunrui, $hinsi, \@mrph_list, $i);
     }
 
     # debug print
@@ -121,6 +121,8 @@ sub ExtractCompoundNounfromBnst {
     my @mrph_used_num; # 各形態素について、複合名詞の要素となった回数を記録
     for my $i (reverse(0..$#mrph_list)){
 
+	my @word_list;
+
 	my $mrphnum = 0;
 	my $midasi = '';
 	my $repname = '';
@@ -132,6 +134,7 @@ sub ExtractCompoundNounfromBnst {
 
 	if (!$is_ok_for_tail[$i]){
 	    $longest_tail_flag = 0;
+	    $outputted_flag = 0;
 	    next;
 	}
 
@@ -208,8 +211,10 @@ sub ExtractCompoundNounfromBnst {
 		return $word_list[-1];
 	    }
 	}
+
+	push @ret_word_list, @word_list if @word_list;
     }
-    return wantarray ? @word_list : $word_list[-1];
+    return wantarray ? @ret_word_list : $ret_word_list[-1];
 }
 
 # 先頭に来れるかどうかをチェック
