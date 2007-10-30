@@ -161,13 +161,29 @@ sub ExtractCompoundNounfromBnst {
 	    # 形態素数の上限、文字数の上限を超えた場合
 	    # 一語ばかりからなる複合語は大抵ごみ (文字化けなど)
 	    if ($mrphnum >= $MRPH_NUM_MAX || length ($midasi) >= $LENGTH_MAX || ($mrphnum == $LENGTH_MAX_ONE_WORD_EACH && length ($midasi) == $mrphnum)) {
-		return wantarray ? () : '';
+		if ($input_is_array_flag) {
+		    $longest_tail_flag = 0;
+		    $outputted_flag = 0;
+		    @word_list = ();
+		    last;
+		}
+		else {
+		    return wantarray ? () : '';
+		}
 	    }
 
 	    # 中黒の数の上限
 	    my $centered_dot_num = ($midasi =~ s/・/・/g);
 	    if ($CENTERED_DOT_NUM_MAX != -1 && $centered_dot_num >= $CENTERED_DOT_NUM_MAX) {
-		return wantarray ? () : '';
+		if ($input_is_array_flag) {
+		    $longest_tail_flag = 0;
+		    $outputted_flag = 0;
+		    @word_list = ();
+		    last;
+		}
+		else {
+		    return wantarray ? () : '';
+		}
 	    }
 
 	    next if (!$is_ok_for_head[$j]);
