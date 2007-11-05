@@ -96,8 +96,12 @@ sub ExtractCompoundNounfromBnst {
 	my $bunrui  = $mrph->bunrui;
 	my $hinsi   = $mrph->hinsi;
 
+	# 自分の前後の形態素の見出し(全角スペースの前後が同じ文字種かどうかチェックするため)
+	my $midasi_pre = $i != 0 ? $mrph_list[$i - 1]->midasi : '';
+	my $midasi_post = $i != $#mrph_list ? $mrph_list[$i + 1]->midasi : '';
+
 	# 真ん中
-	$is_ok_for_mid[$i] = $this->CheckConditionMid($midasi, $fstring, $bunrui, $hinsi, $input_is_array_flag);
+	$is_ok_for_mid[$i] = $this->CheckConditionMid($midasi, $fstring, $bunrui, $hinsi, $midasi_pre, $midasi_post, $input_is_array_flag);
 
 	# 先頭
 	$is_ok_for_head[$i] = $is_ok_for_mid[$i] == 0 ? 0 : $this->CheckConditionHead($midasi, $fstring, $bunrui, $hinsi);
@@ -255,7 +259,7 @@ sub CheckConditionHead {
 
 # 真ん中に来れるかどうかをチェック
 sub CheckConditionMid {
-    my ($this, $midasi, $fstring, $bunrui, $hinsi, $input_is_array_flag) = @_;
+    my ($this, $midasi, $fstring, $bunrui, $hinsi, $midasi_pre, $midasi_post, $input_is_array_flag) = @_;
 
     # 入力が文節の配列の場合は、助詞の「の」でもOK
     if ($input_is_array_flag && $midasi eq 'の' && $hinsi eq '助詞'){
@@ -267,7 +271,7 @@ sub CheckConditionMid {
 	   || $bunrui =~ /(?:副詞的|形式)名詞/) {
 
 	if ($this->{option}{clustering}) {
-	    if ($fstring =~ /<記号>/ && $midasi eq '　') {
+	    if ($fstring =~ /<記号>/ && $midasi eq '　' && &check_same_char_type($midasi_pre, $midasi_post)) {
 		return 1;
 	    }
 	}
@@ -305,6 +309,22 @@ sub CheckConditionTail {
     else {
 	return 1;
     }
+}
+
+# 文字種が同一かどうかをチェックする
+sub check_same_char_type {
+    my ($midasi_pre, $midasi_post) = @_;
+
+    return 0 if !$midasi_pre || !$midasi_post;
+
+    foreach my $type ('Hiragana', 'InKatakana', 'Han', 'InHalfwidthAndFullwidthForms') {
+	if ($midasi_pre =~ /^\p{$type}+$/ && $midasi_post =~ /^\p{$type}+$/) {
+	    return 1;
+	    last;
+	}
+    }
+
+    return 0;
 }
 
 sub print_conditions {
