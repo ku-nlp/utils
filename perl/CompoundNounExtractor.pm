@@ -317,6 +317,10 @@ sub check_same_char_type {
 
     return 0 if !$midasi_pre || !$midasi_post;
 
+    # 前後とも一文字の場合
+    # 例) 「紹　介」
+    return 0 if length($midasi_pre) == 1 && length($midasi_post) == 1;
+
     foreach my $type ('Hiragana', 'InKatakana', 'Han', 'InHalfwidthAndFullwidthForms') {
 	if ($midasi_pre =~ /^\p{$type}+$/ && $midasi_post =~ /^\p{$type}+$/) {
 	    return 1;
