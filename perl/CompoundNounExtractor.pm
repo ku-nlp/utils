@@ -241,7 +241,7 @@ sub ExtractCompoundNounfromBnst {
 sub CheckConditionHead {
     my ($this, $midasi, $fstring, $bunrui, $hinsi) = @_;
 
-    if ($fstring =~ /<名詞相当語>|<漢字>|<独立タグ接頭辞>/
+    if ($fstring =~ /<名詞相当語>|<漢字>|<非?独立タグ接頭辞>/
 	&& $hinsi ne '接尾辞' # 「-性海棉状脳症」などを除く
 #		&& !$self->is_stopword ($mrph2, 'prefix')
 #		&& $mrph2->fstring !~ /末尾/ && # 人名末尾, 組織名末尾などで終るものを除く
@@ -265,7 +265,7 @@ sub CheckConditionMid {
     if ($input_is_array_flag && $midasi eq 'の' && $hinsi eq '助詞'){
 	return 1;
     }
-    elsif ($fstring !~ /<(?:名詞相当語|漢字|独立タグ接頭辞|複合←)>/
+    elsif ($fstring !~ /<(?:名詞相当語|漢字|非?独立タグ接頭辞|複合←)>/
 	   || $fstring =~ /<記号>/
 	   || $midasi =~ /・・/
 	   || $bunrui =~ /(?:副詞的|形式)名詞/) {
