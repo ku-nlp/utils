@@ -130,6 +130,7 @@ sub ExtractCompoundNounfromBnst {
 	my $mrphnum = 0;
 	my $midasi = '';
 	my $repname = '';
+	my $verbose = '';
 	my $jiritsu_mrph_num = 0; #接頭辞、接尾辞を除いた形態素数
 	                          #★「自立」という表現はよろしくない気がする
 
@@ -150,6 +151,13 @@ sub ExtractCompoundNounfromBnst {
 	    my $mrph_j = $mrph_list[$j];
 	    my $midasi_j = $mrph_j->midasi;
 	    my $hinsi_j = $mrph_j->hinsi;
+	    my $bunrui_j = $mrph_j->bunrui;
+	    my $fstring_j = $mrph_j->fstring;
+
+	    my $tmp = $mrph_j->repname();
+	    my $repname_j = $tmp ? $tmp : $midasi_j;
+	    # 見出し|品詞|分類|fstring
+	    my $verbose_j = join('|', ($midasi_j, $hinsi_j, $bunrui_j, $fstring_j));
 
 	    if (!$is_ok_for_mid[$j]){
 		last;
@@ -159,8 +167,8 @@ sub ExtractCompoundNounfromBnst {
 	    $jiritsu_mrph_num++ if ($hinsi_j ne '接頭辞' && $hinsi_j ne '接尾辞');
 
 	    $midasi = $midasi_j . $midasi;
-	    my $tmp = $mrph_j->repname();
-	    $repname = (($tmp)? $tmp : $midasi_j) . (($repname)?  '+' .  $repname : '');
+	    $repname = $repname_j . (($repname) ?  '+' .  $repname : '');
+	    $verbose = $verbose_j . (($verbose) ?  '+' .  $verbose : '');
 
 	    # 形態素数の上限、文字数の上限を超えた場合
 	    # 一語ばかりからなる複合語は大抵ごみ (文字化けなど)
@@ -194,6 +202,8 @@ sub ExtractCompoundNounfromBnst {
 
 	    $mrph_used_num[$j]++;
 	    push @word_list, { midasi => $midasi, repname => $repname, mrphnum => $mrphnum , jiritsu_mrph_num => $jiritsu_mrph_num};
+
+	    $word_list[-1]{verbose} = $verbose if $this->{option}{get_verbose};
 
 	    # 末尾の形態素が未定義語ならば、その複合名詞にundef_flagを追加
 	    # ただし、「品曖-その他」または「品曖-カタカナ」のみを未定義語とみなし、
