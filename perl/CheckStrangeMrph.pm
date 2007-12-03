@@ -2,7 +2,7 @@ package CheckStrangeMrph;
 
 # $Id$
 
-# あやしいひらがなをチェックするモジュール
+# あやしい形態素をチェックするモジュール
 
 use utf8;
 use strict;
@@ -58,4 +58,5 @@ sub _CheckStrangeHiragana {
 	return 0;
     }
 }
+
 1;
