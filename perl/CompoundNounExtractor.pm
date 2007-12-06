@@ -78,7 +78,13 @@ sub ExtractCompoundNounfromBnst {
     # bnstの配列が入力された場合
     if (ref($bnst) eq 'ARRAY') {
 	for my $b ( @{$bnst} ) {
-	    push(@mrph_list, $b->mrph);
+	    # 形態素列が入力された場合(クラスタリング用)
+	    if (ref($b) eq 'KNP::Morpheme') {
+		push(@mrph_list, $b);
+	    }
+	    else {
+		push(@mrph_list, $b->mrph);
+	    }
 	}
 	$input_is_array_flag = 1;
     }
