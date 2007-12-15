@@ -17,7 +17,6 @@ package EditDistance;
 use strict;
 use utf8;
 use Dumpvalue;
-binmode STDOUT, ":utf-8";
 
 my @KatakanaDB = ('アイウエオァィゥェォ', 'カキクケコガギグゲゴヵヶ', 'サシスセソザジズゼゾ', 'タチツテトダヂヅデドッ', 'ナニヌネノ',  
 		  'ハヒフヘホバビブベボパピプペポヴ', 'マミムメモ', 'ヤユヨャュョ', 'ラリルレロ',  'ワヰヲヱンヮ');
