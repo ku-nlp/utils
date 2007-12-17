@@ -160,7 +160,7 @@ sub ExtractCompoundNounfromBnst {
 	    my $bunrui_j = $mrph_j->bunrui;
 	    my $fstring_j = $mrph_j->fstring;
 
-	    my $tmp = $mrph_j->repname();
+	    my $tmp = $mrph_j->repnames();
 	    my $repname_j = $tmp ? $tmp : $midasi_j;
 	    # 見出し|品詞|分類|fstring
 	    my $verbose_j = join('|', ($midasi_j, $hinsi_j, $bunrui_j, $fstring_j));
