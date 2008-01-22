@@ -22,9 +22,6 @@ while (<>) {
 	my $result = new Juman::Result($buf);
 
 	$detectperson->DetectPerson($result);
-	print $result->spec;
-	print "EOS\n";
 	$buf = '';
-
     }
 }
