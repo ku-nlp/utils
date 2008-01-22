@@ -50,19 +50,30 @@ sub DetectPerson {
 	    if (defined $mrph[$i + 3] && $this->CheckOneHan($mrph[$i + 1]) && $this->CheckOneHan($mrph[$i + 2]) && $this->CheckOneHan($mrph[$i + 3], {check_third_han => 1}) && $this->CheckEndCondition($mrph[$i + 4])) {
 		print STDERR $mrph[$i]->midasi, ' ',  $mrph[$i + 1]->midasi, ' ', $mrph[$i + 2]->midasi, ' ', $mrph[$i + 3]->midasi, "\n" if $this->{opt}{debug};
 
-		# Featureを追加
-		$this->PushImisMrphs($mrph[$i + 1], $mrph[$i + 2], $mrph[$i + 3]);
+		$this->PrintMrph($mrph[$i]);
+
+		$this->ConnetOneHans($mrph[$i + 1], $mrph[$i + 2], $mrph[$i + 3]);
+		$i += 3;
+		next;
 	    }
 	    # 村山 富 市
 	    # ただし、「羽田 孜 氏」をのぞくために、漢字の呼掛を除く
 	    elsif ($this->CheckOneHan($mrph[$i + 1]) && $this->CheckOneHan($mrph[$i + 2]) && $this->CheckEndCondition($mrph[$i + 3])) {
 		print STDERR $mrph[$i]->midasi, ' ',  $mrph[$i + 1]->midasi, ' ', $mrph[$i + 2]->midasi, "\n" if $this->{opt}{debug};
 
-		# Featureを追加
-		$this->PushImisMrphs($mrph[$i + 1], $mrph[$i + 2]);
+		$this->PrintMrph($mrph[$i]);
+
+		$this->ConnetOneHans($mrph[$i + 1], $mrph[$i + 2]);
+
+		$i += 2;
+		next;
 	    }
 	}
+
+	$this->PrintMrph($mrph[$i]);
     }
+
+    print "EOS\n";
 }
 
 # (人名) (漢字一文字) (漢字一文字)の次の形態素が条件を満たすかどうかをチェック
@@ -108,20 +119,34 @@ sub CheckOneHan {
     }
 }
 
-# 意味情報を追加
-sub PushImisMrphs {
+# 形態素を出力する(同形も)
+sub PrintMrph {
+    my ($this, $mrph) = @_;
+
+    print $mrph->spec;
+    for my $doukei ($mrph->doukei()) {
+	print '@ ', $doukei->spec;
+    }
+}
+
+# 漢字一字を連結
+sub ConnetOneHans {
     my ($this, @mrphs) = @_;
 
-    my $imi = '漢字一字人名疑';
+    my ($midasi, $yomi, $genkei);
 
-    # 同形にも追加
+    # 単純に連結する
+    # 富 とみ 富 名詞 6 普通名詞 1 * 0 * 0 "漢字読み:訓 カテゴリ:人工物-金銭 代表表記:富/とみ"
+    # 市 し 市 名詞 6 普通名詞 1 * 0 * 0 "漢字読み:音 住所末尾 カテゴリ:組織・団体:場所-その他 ドメイン:政治 代表表記:市/し"
+    # ↓
+    # 富市 とみし 富市 名詞 6 人名 5 * 0 * 0 "漢字一文字人名疑連結"
+
     foreach my $mrph (@mrphs) {
-	$mrph->push_imis($imi);
-
-	for my $doukei ($mrph->doukei()) {
-	    $doukei->push_imis($imi);
-	}
+	$midasi .= $mrph->midasi;
+	$yomi .= $mrph->yomi;
+	$genkei .= $mrph->genkei;
     }
+    print qq($midasi $yomi $genkei 名詞 6 人名 5 * 0 * 0 "漢字一文字人名疑連結"\n);
 }
 
 1;
