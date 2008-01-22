@@ -43,7 +43,6 @@ sub DetectPerson {
     for (my $i = 0; $i < @mrph; $i++) {
 	# 「日本人名:」が意味情報についている場合は姓の場合のみ使う
 	if ($mrph[$i]->bunrui eq '人名' && ($mrph[$i]->imis =~ /日本人名/ && $mrph[$i]->imis =~ /日本人名:姓/)) {
-	    next if ! defined $mrph[$i + 1] || ! defined $mrph[$i + 2];
 
 	    # 渡辺 美 智 雄
 	    # 漢字の3文字目がリストにあるかチェック
@@ -100,6 +99,8 @@ sub CheckEndCondition {
 # optionのcheck_third_hanがきたら、THIRD_HANのリストにあるかチェック
 sub CheckOneHan {
     my ($this, $mrph, $option) = @_;
+
+    return 0 if ! defined $mrph;
 
     if ($mrph->midasi =~ /^\p{Han}$/ && ! defined $this->{YOBIKAKE_HAN}{$mrph->midasi} && $mrph->hinsi !~ /^(?:接尾辞|接頭辞)$/ && $mrph->imis !~ /(?:地名末尾|組織名末尾)/) {
 	if ($option->{check_third_han}) {
