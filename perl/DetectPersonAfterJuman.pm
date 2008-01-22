@@ -7,7 +7,7 @@ package DetectPersonAfterJuman;
 use strict;
 use utf8;
 
-my @KOSYOU = qw/さん 君 くん 様 さま 殿 氏 ちゃん/; # knp/rule/mrph_basic.ruleより借用
+my @YOBIKAKE = qw/さん 君 くん 様 さま 殿 氏 ちゃん/; # knp/rule/mrph_basic.ruleより借用
 my @THIRD_HAN_LIST = qw/子 郎 美 夫 雄 男 代 助 香 恵 里 江 衛 利 奈 志 合 介/; # 名の3文字目のリスト
 
 sub new {
@@ -15,10 +15,10 @@ sub new {
 
     $this = { opt => $opt };
 
-    foreach my $kosyou (@KOSYOU) {
-	$this->{KOSYOU}{$kosyou} = 1;
-	# 呼称のうちの漢字だけ(一文字)
-	$this->{KOSYOU_HAN}{$kosyou} = 1 if $kosyou =~ /^\p{Han}$/;
+    foreach my $yobikake (@YOBIKAKE) {
+	$this->{YOBIKAKE}{$yobikake} = 1;
+	# 呼掛のうちの漢字だけ(一文字)
+	$this->{YOBIKAKE_HAN}{$yobikake} = 1 if $yobikake =~ /^\p{Han}$/;
     }
 
     foreach my $han (@THIRD_HAN_LIST) {
@@ -54,7 +54,7 @@ sub DetectPerson {
 		$this->PushImisMrphs($mrph[$i + 1], $mrph[$i + 2], $mrph[$i + 3]);
 	    }
 	    # 村山 富 市
-	    # ただし、「羽田 孜 氏」をのぞくために、漢字の呼称を除く
+	    # ただし、「羽田 孜 氏」をのぞくために、漢字の呼掛を除く
 	    elsif ($this->CheckOneHan($mrph[$i + 1]) && $this->CheckOneHan($mrph[$i + 2]) && $this->CheckEndCondition($mrph[$i + 3])) {
 		print STDERR $mrph[$i]->midasi, ' ',  $mrph[$i + 1]->midasi, ' ', $mrph[$i + 2]->midasi, "\n" if $this->{opt}{debug};
 
@@ -69,14 +69,14 @@ sub DetectPerson {
 # - 助詞
 # - 特殊
 # - 接尾辞(「ら」など)
-# - 呼称
+# - 呼掛
 # 漢字2文字以上の語
 sub CheckEndCondition {
     my ($this, $mrph) = @_;
 
     return 1 unless defined $mrph;
 
-    if ($mrph->hinsi =~ /^(?:助詞|特殊|接尾辞)$/ || defined $this->{KOSYOU}{$mrph->midasi} || $mrph->midasi =~ /\p{Han}{2,}/) {
+    if ($mrph->hinsi =~ /^(?:助詞|特殊|接尾辞)$/ || defined $this->{YOBIKAKE}{$mrph->midasi} || $mrph->midasi =~ /\p{Han}{2,}/) {
 	return 1;
     }
     else {
@@ -85,12 +85,12 @@ sub CheckEndCondition {
 }
 
 # 漢字一文字をチェック
-# ただし、呼称の漢字(氏など)、接尾辞(「大垣市内」の「市」など)、地名/組織名末尾(「福山西署」の「署」)を除く
+# ただし、呼掛の漢字(氏など)、接尾辞(「大垣市内」の「市」など)、地名/組織名末尾(「福山西署」の「署」)を除く
 # optionのcheck_third_hanがきたら、THIRD_HANのリストにあるかチェック
 sub CheckOneHan {
     my ($this, $mrph, $option) = @_;
 
-    if ($mrph->midasi =~ /^\p{Han}$/ && ! defined $this->{KOSYOU_HAN}{$mrph->midasi} && $mrph->hinsi !~ /^(?:接尾辞|接頭辞)$/ && $mrph->imis !~ /(?:地名末尾|組織名末尾)/) {
+    if ($mrph->midasi =~ /^\p{Han}$/ && ! defined $this->{YOBIKAKE_HAN}{$mrph->midasi} && $mrph->hinsi !~ /^(?:接尾辞|接頭辞)$/ && $mrph->imis !~ /(?:地名末尾|組織名末尾)/) {
 	if ($option->{check_third_han}) {
 	    if (defined $this->{THIRD_HAN}{$mrph->midasi}) {
 		return 1;
