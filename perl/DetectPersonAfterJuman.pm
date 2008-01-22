@@ -9,6 +9,7 @@ use utf8;
 
 my @YOBIKAKE = qw/さん 君 くん 様 さま 殿 氏 ちゃん/; # knp/rule/mrph_basic.ruleより借用
 my @THIRD_HAN_LIST = qw/子 郎 美 夫 雄 男 代 助 香 恵 里 江 衛 利 奈 志 合 介/; # 名の3文字目のリスト
+my @NG_SECOND_HAN = qw/相/; # 河野 外 相
 
 sub new {
     my ($this, $opt) = @_;
@@ -23,6 +24,10 @@ sub new {
 
     foreach my $han (@THIRD_HAN_LIST) {
 	$this->{THIRD_HAN}{$han} = 1;
+    }
+
+    foreach my $han (@NG_SECOND_HAN) {
+	$this->{NG_SECOND_HAN}{$han} = 1;
     }
 
     bless $this;
@@ -57,7 +62,7 @@ sub DetectPerson {
 	    }
 	    # 村山 富 市
 	    # ただし、「羽田 孜 氏」をのぞくために、漢字の呼掛を除く
-	    elsif ($this->CheckOneHan($mrph[$i + 1]) && $this->CheckOneHan($mrph[$i + 2]) && $this->CheckEndCondition($mrph[$i + 3])) {
+	    elsif ($this->CheckOneHan($mrph[$i + 1]) && $this->CheckOneHan($mrph[$i + 2], {check_ng_second_han => 1}) && $this->CheckEndCondition($mrph[$i + 3])) {
 		print STDERR $mrph[$i]->midasi, ' ',  $mrph[$i + 1]->midasi, ' ', $mrph[$i + 2]->midasi, "\n" if $this->{opt}{debug};
 
 		$this->PrintMrph($mrph[$i]);
@@ -109,6 +114,15 @@ sub CheckOneHan {
 	    }
 	    else {
 		return 0;
+	    }
+	}
+	# 河野 外 相
+	elsif ($option->{check_ng_second_han}) {
+	    if (defined $this->{NG_SECOND_HAN}{$mrph->midasi}) {
+		return 0;
+	    }
+	    else {
+		return 1;
 	    }
 	}
 	else {
