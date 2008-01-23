@@ -2,14 +2,20 @@ package DetectPersonAfterJuman;
 
 # $Id$
 
-# Jumanの解析結果から人名を新たにみつける(人名のあとにつづく一文字漢字に着目)
+# Jumanの解析結果から人名を新たにみつける
+
+# 1. 人名姓＋漢字一文字＋漢字一文字 => 最後の二文字を人名に
+# 2. 人名姓＋漢字一文字＋漢字一文字＋漢字一文字(雄, 郎..) => 最後の三文字を人名に
+# 3. 漢字一文字＋漢字一文字＋人名末尾 => 最初の二文字を人名に
 
 use strict;
 use utf8;
 
 my @YOBIKAKE = qw/さん 君 くん 様 さま 殿 氏 ちゃん/; # knp/rule/mrph_basic.ruleより借用
 my @THIRD_HAN_LIST = qw/子 郎 美 夫 雄 男 代 助 香 恵 里 江 衛 利 奈 志 合 介/; # 名の3文字目のリスト
-my @NG_SECOND_HAN = qw/相/; # 河野 外 相
+my @NG_HAN_TYPE1 = qw/相/; # 河野 外 「相」
+my @NG_HAN_TYPE2 = qw/王/; # 六 冠 「王」
+my @NG_HAN_TYPE3 = qw/駐/; # 「駐」 日 大使
 
 sub new {
     my ($this, $opt) = @_;
@@ -26,8 +32,16 @@ sub new {
 	$this->{THIRD_HAN}{$han} = 1;
     }
 
-    foreach my $han (@NG_SECOND_HAN) {
-	$this->{NG_SECOND_HAN}{$han} = 1;
+    foreach my $han (@NG_HAN_TYPE1) {
+	$this->{NG_HAN_TYPE1}{$han} = 1;
+    }
+
+    foreach my $han (@NG_HAN_TYPE2) {
+	$this->{NG_HAN_TYPE2}{$han} = 1;
+    }
+
+    foreach my $han (@NG_HAN_TYPE3) {
+	$this->{NG_HAN_TYPE3}{$han} = 1;
     }
 
     bless $this;
@@ -45,38 +59,92 @@ sub DetectPerson {
 
     my @mrph = $result->mrph;
 
+    my (@result, @already_checked);
+
     for (my $i = 0; $i < @mrph; $i++) {
 	# 「日本人名:」が意味情報についている場合は姓の場合のみ使う
 	if ($this->CheckHaveSei($mrph[$i])) {
 
 	    # 渡辺 美 智 雄
 	    # 漢字の3文字目がリストにあるかチェック
-	    if (defined $mrph[$i + 3] && $this->CheckOneHan($mrph[$i + 1]) && $this->CheckOneHan($mrph[$i + 2]) && $this->CheckOneHan($mrph[$i + 3], {check_third_han => 1}) && $this->CheckEndCondition($mrph[$i + 4])) {
+	    if (defined $mrph[$i + 3] && $this->CheckOneHan($mrph[$i + 1], {no_matsubi => 1}) && $this->CheckOneHan($mrph[$i + 2], {no_matsubi => 1}) && $this->CheckOneHan($mrph[$i + 3], {check_third_han => 1}) && $this->CheckEndCondition($mrph[$i + 4])) {
 		print STDERR $mrph[$i]->midasi, ' ',  $mrph[$i + 1]->midasi, ' ', $mrph[$i + 2]->midasi, ' ', $mrph[$i + 3]->midasi, "\n" if $this->{opt}{debug};
 
-		$this->PrintMrphWithDisambiguation($mrph[$i]);
+		# 結果の保持
+		$result[$i]{person_name} = 'post'; # 自分より後ろに漢字一文字の列がある
+		$result[$i]{one_han_list} = [ $i + 1, $i + 2, $i + 3 ];
 
-		$this->ConnetOneHans($mrph[$i + 1], $mrph[$i + 2], $mrph[$i + 3]);
+		$already_checked[$i] = 1; $already_checked[$i + 1] = 1; $already_checked[$i + 2] = 1; $already_checked[$i + 3] = 1;
+
 		$i += 3;
 		next;
 	    }
 	    # 村山 富 市
 	    # ただし、「羽田 孜 氏」をのぞくために、漢字の呼掛を除く
-	    elsif ($this->CheckOneHan($mrph[$i + 1]) && $this->CheckOneHan($mrph[$i + 2], {check_ng_second_han => 1}) && $this->CheckEndCondition($mrph[$i + 3])) {
+	    elsif ($this->CheckOneHan($mrph[$i + 1], {no_matsubi => 1}) && $this->CheckOneHan($mrph[$i + 2], {no_matsubi => 1, check_ng_second_han => 1}) && $this->CheckEndCondition($mrph[$i + 3])) {
 		print STDERR $mrph[$i]->midasi, ' ',  $mrph[$i + 1]->midasi, ' ', $mrph[$i + 2]->midasi, "\n" if $this->{opt}{debug};
 
-		$this->PrintMrphWithDisambiguation($mrph[$i]);
+		# 結果の保持
+		$result[$i]{person_name} = 'post';
+		$result[$i]{one_han_list} = [ $i + 1, $i + 2 ];
 
-		$this->ConnetOneHans($mrph[$i + 1], $mrph[$i + 2]);
-
+		$already_checked[$i] = 1; $already_checked[$i + 1] = 1; $already_checked[$i + 2] = 1;
 		$i += 2;
 		next;
 	    }
 	}
+	# 漢字一文字＋漢字一文字＋人名末尾 => 最初の二文字を人名
+	# 例: 糸川先生
+	# 「加藤 輝 美 社長」のように上記の処理で「輝美」となった場合はこの処理を行なわない
+	elsif ($i >= 2 && $mrph[$i]->imis =~ /人名末尾/ && ! defined $this->{NG_HAN_TYPE2}{$mrph[$i]->midasi} && ! $already_checked[$i - 1] && ! $already_checked[$i - 2] && $this->CheckEndCondition($mrph[$i - 3])) {
+	    if ($this->CheckOneHan($mrph[$i - 1]) && $this->CheckOneHan($mrph[$i - 2], {check_ng_type3 => 1})) {
+		print STDERR $mrph[$i - 2]->midasi, '-',  $mrph[$i - 1]->midasi, '-', $mrph[$i]->midasi, "\n" if $this->{opt}{debug};
 
-	$this->PrintMrph($mrph[$i]);
+		# 結果の保持
+		$result[$i]{person_name} = 'pre'; # 自分より前に漢字一文字の列がある
+		$result[$i]{one_han_list} = [ $i - 2, $i - 1 ];
+		$result[$i - 1]{pre_person} = 1;
+		$result[$i - 2]{pre_person} = 1;
+	    }
+	}
     }
 
+    $this->PrintResult(\@mrph, \@result);
+
+}
+
+# 結果の表示
+sub PrintResult {
+    my ($this, $mrph, $result) = @_;
+
+    for (my $i = 0; $i < @{$mrph}; $i++) {
+	next if defined $result->[$i]{pre_person};
+
+	if (defined $result->[$i]{person_name}) {
+	    my @connect_mrphs;
+	    foreach my $j (@{$result->[$i]{one_han_list}}) {
+		push @connect_mrphs, $mrph->[$j];
+	    }
+
+	    # 自分より前に一文字漢字列がある
+	    if ($result->[$i]{person_name} eq 'pre') {
+		$this->ConnetOneHans(@connect_mrphs);
+
+		$this->PrintMrphWithDisambiguation($mrph->[$i]);
+	    }
+	    # 自分より後ろに一文字漢字列がある
+	    else {
+		$this->PrintMrphWithDisambiguation($mrph->[$i], { only_person => 1 });
+
+		$this->ConnetOneHans(@connect_mrphs);
+
+		$i += scalar (@connect_mrphs);
+	    }
+	}
+	else {
+	    $this->PrintMrph($mrph->[$i]);
+	}
+    }
     print "EOS\n";
 }
 
@@ -131,7 +199,7 @@ sub CheckOneHan {
 
     return 0 if ! defined $mrph;
 
-    if ($mrph->midasi =~ /^\p{Han}$/ && ! defined $this->{YOBIKAKE_HAN}{$mrph->midasi} && $mrph->hinsi !~ /^(?:接尾辞|接頭辞)$/ && $mrph->imis !~ /(?:地名末尾|組織名末尾)/) {
+    if ($mrph->midasi =~ /^\p{Han}$/ && ! defined $this->{YOBIKAKE_HAN}{$mrph->midasi} && $mrph->hinsi !~ /^(?:接尾辞|接頭辞)$/ && (($option->{no_matsubi} && $mrph->imis !~ /(?:地名末尾|組織名末尾)/) || ! $option->{no_matsubi})) {
 	if ($option->{check_third_han}) {
 	    if (defined $this->{THIRD_HAN}{$mrph->midasi}) {
 		return 1;
@@ -142,7 +210,16 @@ sub CheckOneHan {
 	}
 	# 河野 外 相
 	elsif ($option->{check_ng_second_han}) {
-	    if (defined $this->{NG_SECOND_HAN}{$mrph->midasi}) {
+	    if (defined $this->{NG_HAN_TYPE1}{$mrph->midasi}) {
+		return 0;
+	    }
+	    else {
+		return 1;
+	    }
+	}
+	# 駐日大使
+	elsif ($option->{check_ng_type3}) {
+	    if (defined $this->{NG_HAN_TYPE3}{$mrph->midasi}) {
 		return 0;
 	    }
 	    else {
@@ -174,16 +251,16 @@ sub PrintMrph {
 # ↓
 # 野原 のはら 野原 名詞 6 人名 5 * 0 * 0 "日本人名:姓:742:0.00022"
 sub PrintMrphWithDisambiguation {
-    my ($this, $mrph) = @_;
+    my ($this, $mrph, $option) = @_;
 
     my $output_count = 0;
 
-    if ($mrph->bunrui eq '人名') {
+    if (($option->{only_person} && $mrph->bunrui eq '人名') || ! $option->{only_person}) {
 	print $mrph->spec;
 	$output_count++;
     }
     for my $doukei ($mrph->doukei()) {
-	if ($doukei->bunrui eq '人名') {
+	if (($option->{only_person} && $doukei->bunrui eq '人名') || ! $option->{only_person}) {
 	    if ($output_count) {
 		print '@ ';
 	    }
