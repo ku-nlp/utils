@@ -47,7 +47,7 @@ sub DetectPerson {
 
     for (my $i = 0; $i < @mrph; $i++) {
 	# 「日本人名:」が意味情報についている場合は姓の場合のみ使う
-	if ($mrph[$i]->bunrui eq '人名' && ($mrph[$i]->imis =~ /日本人名/ && $mrph[$i]->imis =~ /日本人名:姓/)) {
+	if ($this->CheckHaveSei($mrph[$i])) {
 
 	    # 渡辺 美 智 雄
 	    # 漢字の3文字目がリストにあるかチェック
@@ -78,6 +78,30 @@ sub DetectPerson {
     }
 
     print "EOS\n";
+}
+
+# 「姓」があるかチェック
+# 「日本人名:」が意味情報についている場合は姓の場合のみ使う
+sub CheckHaveSei {
+    my ($this, $mrph) = @_;
+
+    return 1 if &_checkhavesei($mrph);
+
+    for my $doukei ($mrph->doukei()) {
+	return 1 if &_checkhavesei($doukei);
+    }
+    return 0;
+}
+
+sub _checkhavesei {
+    my ($mrph) = @_;
+
+    if ($mrph->bunrui eq '人名' && ($mrph->imis =~ /日本人名/ && $mrph->imis =~ /日本人名:姓/)) {
+	return 1;
+    }
+    else {
+	return 0;
+    }
 }
 
 # (人名) (漢字一文字) (漢字一文字)の次の形態素が条件を満たすかどうかをチェック
