@@ -54,7 +54,7 @@ sub DetectPerson {
 	    if (defined $mrph[$i + 3] && $this->CheckOneHan($mrph[$i + 1]) && $this->CheckOneHan($mrph[$i + 2]) && $this->CheckOneHan($mrph[$i + 3], {check_third_han => 1}) && $this->CheckEndCondition($mrph[$i + 4])) {
 		print STDERR $mrph[$i]->midasi, ' ',  $mrph[$i + 1]->midasi, ' ', $mrph[$i + 2]->midasi, ' ', $mrph[$i + 3]->midasi, "\n" if $this->{opt}{debug};
 
-		$this->PrintMrph($mrph[$i]);
+		$this->PrintMrphWithDisambiguation($mrph[$i]);
 
 		$this->ConnetOneHans($mrph[$i + 1], $mrph[$i + 2], $mrph[$i + 3]);
 		$i += 3;
@@ -65,7 +65,7 @@ sub DetectPerson {
 	    elsif ($this->CheckOneHan($mrph[$i + 1]) && $this->CheckOneHan($mrph[$i + 2], {check_ng_second_han => 1}) && $this->CheckEndCondition($mrph[$i + 3])) {
 		print STDERR $mrph[$i]->midasi, ' ',  $mrph[$i + 1]->midasi, ' ', $mrph[$i + 2]->midasi, "\n" if $this->{opt}{debug};
 
-		$this->PrintMrph($mrph[$i]);
+		$this->PrintMrphWithDisambiguation($mrph[$i]);
 
 		$this->ConnetOneHans($mrph[$i + 1], $mrph[$i + 2]);
 
@@ -165,6 +165,34 @@ sub PrintMrph {
     print $mrph->spec;
     for my $doukei ($mrph->doukei()) {
 	print '@ ', $doukei->spec;
+    }
+}
+
+# 人名と普通名詞などの曖昧性がある場合に、人名のみにする
+# 野原 のはら 野原 名詞 6 普通名詞 1 * 0 * 0 "カテゴリ:場所-自然 代表表記:野原/のはら"
+# @ 野原 のはら 野原 名詞 6 人名 5 * 0 * 0 "日本人名:姓:742:0.00022"
+# ↓
+# 野原 のはら 野原 名詞 6 人名 5 * 0 * 0 "日本人名:姓:742:0.00022"
+sub PrintMrphWithDisambiguation {
+    my ($this, $mrph) = @_;
+
+    my $output_count = 0;
+
+    if ($mrph->bunrui eq '人名') {
+	print $mrph->spec;
+	$output_count++;
+    }
+    for my $doukei ($mrph->doukei()) {
+	if ($doukei->bunrui eq '人名') {
+	    if ($output_count) {
+		print '@ ';
+	    }
+	    print $doukei->spec;
+	    $output_count++;
+	}
+    }
+    if ($output_count == 0) {
+	print STDERR "Error! in PrintMrphWithDisambiguation\n";
     }
 }
 
