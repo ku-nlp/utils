@@ -15,7 +15,7 @@ use CompoundNounExtractor;
 use Getopt::Long;
 
 my (%opt);
-GetOptions(\%opt, 'longest', 'clustering', 'mrphnummax=i', 'lengthmax=i', 'length_max_one_word_each=i', 'centered_dot_num_max=i', 'get_verbose', 'connect_hyphen', 'debug');
+GetOptions(\%opt, 'longest', 'clustering', 'mrphnummax=i', 'lengthmax=i', 'length_max_one_word_each=i', 'centered_dot_num_max=i', 'get_verbose', 'connect_hyphen', 'no_check_same_char_type', 'debug');
 &usage if $opt{help};
 
 my $option;
@@ -27,6 +27,8 @@ $option->{LENGTH_MAX} = $opt{lengthmax} if $opt{lengthmax};
 $option->{LENGTH_MAX_ONE_WORD_EACH} = $opt{length_max_one_word_each} if $opt{length_max_one_word_each};
 $option->{CENTERED_DOT_NUM_MAX} = $opt{centered_dot_num_max} if $opt{centered_dot_num_max};
 $option->{connect_hyphen} = $opt{connect_hyphen} if $opt{connect_hyphen};
+$option->{no_check_same_char_type} = $opt{no_check_same_char_type} if $opt{no_check_same_char_type};
+
 my $cne = new CompoundNounExtractor($option);
 
 my $buf;

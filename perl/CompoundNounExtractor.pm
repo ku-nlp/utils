@@ -286,7 +286,8 @@ sub CheckConditionMid {
 	   || $bunrui =~ /(?:副詞的|形式)名詞/) {
 
 	if ($this->{option}{clustering}) {
-	    if ($fstring =~ /<記号>/ && $midasi eq '　' && &check_same_char_type($midasi_pre, $midasi_post)) {
+	    if ($fstring =~ /<記号>/ && $midasi eq '　' && 
+		($this->{option}{no_check_same_char_type} || (!$this->{option}{no_check_same_char_type} && &check_same_char_type($midasi_pre, $midasi_post)))) {
 		return 1;
 	    }
 	}
