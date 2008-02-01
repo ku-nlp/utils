@@ -290,6 +290,13 @@ sub CheckConditionMid {
 		return 1;
 	    }
 	}
+	if ($this->{option}{connect_hyphen}) {
+	    print "$midasi $fstring\n";
+	    if ($fstring =~ /<記号>/ && $midasi eq '−') {
+		return 1;
+	    }
+	}
+
 	return 0;
     }
     else {
