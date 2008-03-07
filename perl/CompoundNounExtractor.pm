@@ -160,6 +160,19 @@ sub ExtractCompoundNounfromBnst {
 	    my $fstring_j = $mrph_j->fstring;
 
 	    my $tmp = $mrph_j->repnames();
+
+	    # 読みを削除
+	    if ($this->{option}{no_yomi_in_repname}) {
+		my $no_yomi;
+
+		foreach my $mrph (split('\?', $tmp)) {
+		    my $hyouki = (split('/', $mrph))[0];
+		    $no_yomi .= $hyouki;
+		}
+		$tmp = $no_yomi;
+	    }
+
+
 	    my $repname_j = $tmp ? $tmp : $midasi_j;
 	    # 見出し|品詞|分類|fstring
 	    my $verbose_j = join('|', ($midasi_j, $hinsi_j, $bunrui_j, $fstring_j));
