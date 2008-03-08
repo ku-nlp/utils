@@ -163,13 +163,17 @@ sub ExtractCompoundNounfromBnst {
 
 	    # 読みを削除
 	    if ($this->{option}{no_yomi_in_repname}) {
-		my $no_yomi;
-
+		my @tmp;
 		foreach my $mrph (split('\?', $tmp)) {
 		    my $hyouki = (split('/', $mrph))[0];
-		    $no_yomi .= $hyouki;
+		    push @tmp, $hyouki;
 		}
-		$tmp = $no_yomi;
+
+		# 読みだけが異なるものは一つにするためにuniq
+		# 例: 今日/きょう?今日/こんにち
+		@tmp = delete_overlap(\@tmp);
+
+		$tmp = join('?', @tmp);
 	    }
 
 
@@ -381,6 +385,16 @@ sub print_conditions {
 	print "  " . $mrph->fstring . "\n";
 	print "\n";
     }
+}
+
+# 配列の重複を削除
+sub delete_overlap {
+    my ($ar_list) = @_;
+
+    my %seen = ();
+    my @uniq = grep { ! $seen{$_}++ } @{$ar_list};
+
+    return @uniq;
 }
 
 1;
