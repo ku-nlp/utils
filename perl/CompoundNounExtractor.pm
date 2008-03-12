@@ -273,13 +273,14 @@ sub ExtractCompoundNounfromBnst {
 sub CheckConditionHead {
     my ($this, $midasi, $fstring, $bunrui, $hinsi) = @_;
 
-    if ($fstring =~ /<名詞相当語>|<漢字>|<非?独立タグ接頭辞>/
+    if (($fstring =~ /<(?:名詞相当語|漢字)>/ || $hinsi eq '接頭辞')
 	&& $hinsi ne '接尾辞' # 「-性海棉状脳症」などを除く
 #		&& !$self->is_stopword ($mrph2, 'prefix')
 #		&& $mrph2->fstring !~ /末尾/ && # 人名末尾, 組織名末尾などで終るものを除く
 	&& $midasi !~ /^(?:$NG_CHAR)/) {
 
-	if ($this->{option}{clustering} && $fstring =~ /<独立タグ接頭辞>/ && $midasi eq '本') {
+	# ★二つの条件を設けているのは過渡的（そのうち前の条件を削除）
+	if ($this->{option}{clustering} && ($fstring =~ /<独立タグ接頭辞>/ || ($fstring =~ /<内容語>/ && $bunrui eq '名詞接頭辞')) && $midasi eq '本') {
 	    return 0;
 	}
 	return 1;
@@ -297,7 +298,7 @@ sub CheckConditionMid {
     if ($input_is_array_flag && $midasi eq 'の' && $hinsi eq '助詞'){
 	return 1;
     }
-    elsif ($fstring !~ /<(?:名詞相当語|漢字|非?独立タグ接頭辞|複合←)>/
+    elsif (($fstring !~ /<(?:名詞相当語|漢字|複合←)>/ && $hinsi ne '接頭辞')
 	   || $fstring =~ /<記号>/
 	   || $midasi =~ /・・/
 	   || $bunrui =~ /(?:副詞的|形式)名詞/) {
@@ -333,9 +334,11 @@ sub CheckConditionTail {
 	|| $fstring =~ /<記号>|<数字>/ # 名詞相当語 かつ 記号 .. ●,《, ＠など
                                        # 名詞相当語 かつ 時間辞 .. 1960年代半ばの「代」など
                                        # 数字 .. もし入れると新聞記事やブログの日付が大量に混入?
-	|| $fstring =~ /<非?独立タグ接頭辞>/ # 「イースター島再来訪」から「イースター島再」を排除
+	|| $hinsi eq '接頭辞' # 「イースター島再来訪」から「イースター島再」を排除
 	|| $midasi =~ /・/
+	# ★以下の二行を設けてるのは過渡的（そのうち上の行を削除）
 	|| ($fstring =~ /<非独立タグ接尾辞>/ && $fstring !~ /<意味有>/) # 非独立接尾辞はNG ただし<意味有>がついている(個、つ、県、化、性など)ならばOK
+	|| ($hinsi eq '接尾辞' && $fstring !~ /<準?内容語>/) # 接尾辞はNG ただし<準?内容語>がついている(個、つ、県、化、性など)ならばOK
 	|| ($this->{option}{clustering} && $midasi eq '等')) {
 
 	if ($this->{option}{clustering}) {
