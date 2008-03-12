@@ -15,7 +15,7 @@ use CompoundNounExtractor;
 use Getopt::Long;
 
 my (%opt);
-GetOptions(\%opt, 'longest', 'clustering', 'mrphnummax=i', 'lengthmax=i', 'length_max_one_word_each=i', 'centered_dot_num_max=i', 'get_verbose', 'connect_hyphen', 'no_check_same_char_type', 'debug', 'no_yomi_in_repname');
+GetOptions(\%opt, 'longest', 'clustering', 'mrphnummax=i', 'lengthmax=i', 'length_max_one_word_each=i', 'centered_dot_num_max=i', 'get_verbose', 'connect_hyphen', 'no_check_same_char_type', 'debug', 'no_yomi_in_repname', 'array_input');
 &usage if $opt{help};
 
 my $option;
@@ -46,23 +46,38 @@ while (<>) {
 	}
 	print "\n";
 
-	foreach my $bnst ($result->bnst) {
-	    print STDERR '★ bid:', $bnst->id, "\n";
-	    if ($opt{longest}) {
+	# クラスタリング用
+	if ($opt{array_input}) {
+	    my @bnsts = $result->bnst;
 
-		my $word = $cne->ExtractCompoundNounfromBnst($bnst, { longest => 1 });
+	    my @words = $cne->ExtractCompoundNounfromBnst(\@bnsts);
 
-		if ($word) {
-		    print "midasi:$word->{midasi} repname:$word->{repname}\n\n";
-		} 
+	    foreach my $tmp (@words) {
+		print "midasi:$tmp->{midasi} repname:$tmp->{repname}";
+		print " verbose:$tmp->{verbose}" if $opt{get_verbose};
+		print "\n\n";
 	    }
-	    else {
-		my @words = $cne->ExtractCompoundNounfromBnst($bnst);
+	}
+	else {
 
-		foreach my $tmp (@words) {
-		    print "midasi:$tmp->{midasi} repname:$tmp->{repname}";
-		    print " verbose:$tmp->{verbose}" if $opt{get_verbose};
-		    print "\n\n";
+	    foreach my $bnst ($result->bnst) {
+		print STDERR '★ bid:', $bnst->id, "\n";
+		if ($opt{longest}) {
+
+		    my $word = $cne->ExtractCompoundNounfromBnst($bnst, { longest => 1 });
+
+		    if ($word) {
+			print "midasi:$word->{midasi} repname:$word->{repname}\n\n";
+		    } 
+		}
+		else {
+		    my @words = $cne->ExtractCompoundNounfromBnst($bnst);
+
+		    foreach my $tmp (@words) {
+			print "midasi:$tmp->{midasi} repname:$tmp->{repname}";
+			print " verbose:$tmp->{verbose}" if $opt{get_verbose};
+			print "\n\n";
+		    }
 		}
 	    }
 	}
