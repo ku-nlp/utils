@@ -279,9 +279,16 @@ sub CheckConditionHead {
 #		&& $mrph2->fstring !~ /末尾/ && # 人名末尾, 組織名末尾などで終るものを除く
 	&& $midasi !~ /^(?:$NG_CHAR)/) {
 
-	# ★二つの条件を設けているのは過渡的（そのうち前の条件を削除）
-	if ($this->{option}{clustering} && ($fstring =~ /<独立タグ接頭辞>/ || ($fstring =~ /<内容語>/ && $bunrui eq '名詞接頭辞')) && $midasi eq '本') {
-	    return 0;
+
+	if ($this->{option}{clustering}) {
+	    # 「本」研究、「当」病院、「同」病院などを除く
+	    # ★二つの条件を設けているのは過渡的（そのうち前の条件を削除）
+	    if (($fstring =~ /<独立タグ接頭辞>/ || ($fstring =~ /<内容語>/ && $bunrui eq '名詞接頭辞')) && $midasi =~ /^(?:本|同)$/) {
+		return 0;
+	    }
+	    elsif ($hinsi eq '連体詞' && $midasi eq '当') {
+		return 0;
+	    }
 	}
 	return 1;
     }
