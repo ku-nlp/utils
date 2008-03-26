@@ -266,7 +266,14 @@ sub ExtractCompoundNounfromBnst {
 
 	push @ret_word_list, @word_list if @word_list;
     }
-    return wantarray ? @ret_word_list : $ret_word_list[-1];
+
+    if ($input_is_array_flag && $option->{longest}) {
+	# longest_flagのついているものだけを返す
+	return grep {defined $_->{longest_flag}} @ret_word_list;
+    }
+    else {
+	return wantarray ? @ret_word_list : $ret_word_list[-1];
+    }
 }
 
 # 先頭に来れるかどうかをチェック
