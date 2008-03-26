@@ -334,7 +334,7 @@ sub CheckConditionMid {
 sub CheckConditionTail {
     my ($this, $midasi, $fstring, $bunrui, $hinsi, $mrph_list, $i) = @_;
 
-    if ($midasi =~ /^\p{Hiragana}$/ # ひらがな一文字
+    if (($midasi =~ /^\p{Hiragana}$/ && $hinsi !~ /^(?:接頭辞|接尾辞)$/) # ひらがな一文字(接尾辞と接頭辞を除く)
 	# || $mrph->fstring =~ /<NE:[A-Z]*:(head|middle)>/ # 固有名詞の途中で終るものは登録しない
 	|| $fstring !~ /<(?:名詞相当語|かな漢字|カタカナ)>/ # 一番最後が名詞でない
 	|| $bunrui =~ /(?:副詞的|形式)名詞/ # 形式名詞（もの, こと..)/副詞的名詞(よう, とき..)
