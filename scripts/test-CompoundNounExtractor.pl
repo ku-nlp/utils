@@ -50,11 +50,14 @@ while (<>) {
 	if ($opt{array_input}) {
 	    my @bnsts = $result->bnst;
 
-	    my @words = $cne->ExtractCompoundNounfromBnst(\@bnsts);
+	    my $option;
+	    $option->{longest} = 1 if $opt{longest};
+	    my @words = $cne->ExtractCompoundNounfromBnst(\@bnsts, $option);
 
 	    foreach my $tmp (@words) {
 		print "midasi:$tmp->{midasi} repname:$tmp->{repname}";
 		print " verbose:$tmp->{verbose}" if $opt{get_verbose};
+		print " longest¡ú" if defined $tmp->{longest_flag};
 		print "\n\n";
 	    }
 	}
