@@ -127,6 +127,7 @@ sub ExtractCompoundNounfromBnst {
 
     my $longest_tail_flag = 0;
     my $outputted_flag = 0;
+    my $mrph_num_max_over_flag = 0; # array_input用
     my @mrph_used_num; # 各形態素について、複合名詞の要素となった回数を記録
     for my $i (reverse(0..$#mrph_list)){
 
@@ -141,6 +142,19 @@ sub ExtractCompoundNounfromBnst {
 
 	my $midasi_i =  $mrph_list[$i]->{midasi};
 	my $fstring_i = $mrph_list[$i]->{fstring};
+
+	# (array_input用)
+	# 形態素数などのを上限超えている文節からは複合名詞を抽出しない
+	# $is_ok_for_mid[$i]が0になったらそこから再開
+	if ($mrph_num_max_over_flag) {
+	    if ($is_ok_for_mid[$i]){
+		next;
+	    }
+	    else {
+		$mrph_num_max_over_flag = 0;
+		next;
+	    }
+	}
 
 	if (!$is_ok_for_tail[$i]){
 	    $longest_tail_flag = 0;
@@ -199,6 +213,7 @@ sub ExtractCompoundNounfromBnst {
 		    $longest_tail_flag = 0;
 		    $outputted_flag = 0;
 		    @word_list = ();
+		    $mrph_num_max_over_flag = 1;
 		    last;
 		}
 		else {
@@ -213,6 +228,7 @@ sub ExtractCompoundNounfromBnst {
 		    $longest_tail_flag = 0;
 		    $outputted_flag = 0;
 		    @word_list = ();
+		    $mrph_num_max_over_flag = 1;
 		    last;
 		}
 		else {
