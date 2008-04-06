@@ -4,9 +4,13 @@ package Trie;
 
 use utf8;
 use strict;
+use Encode;
 use Regexp::Trie;
 use Unicode::Japanese;
 use JICFS;
+use BerkeleyDB;
+use Storable;
+use MLDBM qw(BerkeleyDB::Hash Storable);
 
 sub new {
     my ($this, $opt) = @_;
@@ -30,6 +34,10 @@ sub new {
 
 sub DESTROY {
     my ($this) = @_;
+
+    if ($this->{opt}{retrievedb}) {
+	untie %{$this->{trie}};
+    }
 }
 
 # stringをtrie構造に追加
@@ -57,6 +65,40 @@ sub Add {
     }
 }
 
+sub MakeDB {
+    my ($this, $dbname) = @_;
+
+    my %hash;
+    my $db = tie %hash, 'MLDBM', -Filename => $dbname, -Flags => DB_CREATE or die "Cannot tie '$dbname'";
+
+    $this->DBFilter($db);
+
+    while (my ($key, $value) = each %{$this->{trie}}) {
+        $hash{$key} = $value;
+    }
+
+    untie %hash;
+}
+
+sub RetrieveDB {
+    my ($this, $dbname) = @_;
+
+    $this->{opt}{retrievedb} = 1;
+    my $db = tie %{$this->{trie}}, 'MLDBM', -Filename => $dbname or die "Cannot tie '$dbname'";
+
+    $this->DBFilter($db);
+}
+
+sub DBFilter {
+    my ($this, $db) = @_;
+
+    # filter setting
+    $db->filter_fetch_key(sub{$_ = &decode('utf-8', $_)});
+    $db->filter_store_key(sub{$_ = &encode('utf-8', $_)});
+    $db->filter_fetch_value(sub{$_ = &decode('utf-8', $_)});
+    $db->filter_store_value(sub{$_ = &encode('utf-8', $_)});
+
+}
 sub GetRepname {
     my ($this, $mrph) = @_;
 
