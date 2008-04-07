@@ -40,6 +40,62 @@ sub DESTROY {
     }
 }
 
+# テキスト中から商品名をみつける
+sub DetectGoods {
+    my ($this, $mrphs, $repnames) = @_;
+
+    unless ($repnames) {
+	@{$repnames} = map { $this->GetRepname($_) } @{$mrphs};
+    }
+
+    my $outputtext;
+
+    for (my $i = 0; $i < @{$mrphs}; $i++) {
+	my $match_flag = 0;
+	my $end_j;
+	my $ref = $this->{trie};
+
+	my $j = $i;
+	while ($j <= @{$mrphs}) {
+	    # terminator
+	    if ($ref->{''}) {
+		$match_flag = 1;
+		$end_j = $j - 1;
+		
+		# 唯一のterminator
+		if (scalar keys %$ref == 1) {
+		    last;
+		}
+	    }
+
+	    if (defined $ref->{$repnames->[$j]}) {
+		$ref = $ref->{$repnames->[$j]};
+		$j++;
+	    }
+	    else {
+		last;
+	    }
+	}
+	# マッチした
+	if ($match_flag) {
+	    $outputtext .= '「';
+	    for my $k ( $i .. $end_j) {
+		$outputtext .= $mrphs->[$k]->midasi;
+	    }
+	    $outputtext .= '」';
+
+	    # 最後にマッチしたところまで進める
+	    $i = $end_j;
+	}
+	# マッチしなかった
+	else {
+	    $outputtext .= $mrphs->[$i]->midasi;
+	}
+    }
+    return $outputtext;
+}
+
+
 # stringをtrie構造に追加
 sub Add {
     my ($this, $string) = @_;
