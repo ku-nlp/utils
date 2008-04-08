@@ -57,6 +57,12 @@ sub DetectGoods {
 
 	my $j = $i;
 	while ($j <= @{$mrphs}) {
+
+	    if ($this->SkipMrph($repnames->[$j])) {
+		$j++;
+		next;
+	    }
+
 	    # terminator
 	    if ($ref->{''}) {
 		$match_flag = 1;
@@ -111,6 +117,8 @@ sub Add {
 	for my $mrph ($result->mrph){
 	    my $repname = $this->GetRepname($mrph);
 
+	    next if $this->SkipMrph($repname);
+
 	    $ref->{$repname} ||= {};
 	    $ref = $ref->{$repname};
 	}
@@ -119,6 +127,13 @@ sub Add {
     else {
 	$this->{trie}->add($string);
     }
+}
+
+# Trie構築時、解析時ともにスキップする形態素をチェック
+sub SkipMrph {
+    my ($this, $repname) = @_;
+
+    return 1 if $repname eq '　/　';
 }
 
 sub MakeDB {
