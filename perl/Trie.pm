@@ -109,6 +109,8 @@ sub Add {
     $string =~ s/^\s+//;
     $string =~ s/\s+$//;
 
+    return unless $string;
+
     if ($this->{opt}{usejuman}) {
 	$string = $this->{jicfs}->ArrangeSentence($string);
 	my $ref  = $this->{trie};
