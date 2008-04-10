@@ -111,12 +111,15 @@ sub Add {
 
     return unless $string;
 
+    # 数字だけ
+    return if $string =~ /^\d+$/;
+
     if ($this->{opt}{usejuman}) {
 	$string = $this->{jicfs}->ArrangeSentence($string);
 	my $ref  = $this->{trie};
 	my $result = $this->{juman}->analysis($string);
 
-	for my $mrph ($result->mrph){
+	for my $mrph ($result->mrph) {
 	    my $repname = $this->GetRepname($mrph);
 
 	    next if $this->SkipMrph($repname);
