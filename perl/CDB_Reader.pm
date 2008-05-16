@@ -3,7 +3,7 @@ package CDB_Reader;
 # $Id$
 
 ###############################################################################################
-# CDB_Writer¤¬Ê¬³ä¤·¤ÆºîÀ®¤·¤¿cdb¥Õ¥¡¥¤¥ë¤ò¡¢1¤Ä¤Îcdb¥Õ¥¡¥¤¥ë¤ÈÅù²Á¤Ë°·¤¨¤ë¤è¤¦¤Ë¤¹¤ë¥â¥¸¥å¡¼¥ë
+# CDB_WriterãŒåˆ†å‰²ã—ã¦ä½œæˆã—ãŸcdbãƒ•ã‚¡ã‚¤ãƒ«ã‚’ã€1ã¤ã®cdbãƒ•ã‚¡ã‚¤ãƒ«ã¨ç­‰ä¾¡ã«æ‰±ãˆã‚‹ã‚ˆã†ã«ã™ã‚‹ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«
 ###############################################################################################
 
 use strict;
@@ -12,18 +12,20 @@ use CDB_File;
 use File::Basename;
 
 sub new {
-    my ($class, $keymapfile) = @_;
-    my $this;
+    my ($class, $keymapfile, $opt) = @_;
+    my $this = {
+	opt => $opt
+    };
 
     my $dbdir = dirname($keymapfile);
 
     $this->{map} = [];
-    open(READER, $keymapfile);
+    open(READER, '<:utf8', $keymapfile);
     while (<READER>) {
 	chop($_);
 	my ($k, $file) = split(' ', $_);
 	if (scalar(@{$this->{map}}) < 1) {
-	    my ($file0) = ($file =~ /(.+?)\.\d+/);
+	    my ($file0) = ($file =~ /([^\/]+)\.\d+/);
 	    $file0 .= ".0";
 	    tie my %cdb, 'CDB_File', "$dbdir/$file0" or die "$0: can't tie to $dbdir/$file0 $!\n";
 	    push(@{$this->{map}}, {key => undef, cdb => \%cdb});
@@ -52,7 +54,14 @@ sub get {
     for (my $i = 1; $i < scalar(@{$this->{map}}); $i++) {
 	my $e = $this->{map}[$i];
 	my $k = $e->{key};
-	last if ($searchKey lt $k);
+
+	# keyãŒæ•°å­—ã§sortã•ã‚Œã¦ã„ã‚‹ã‚ªãƒ—ã‚·ãƒ§ãƒ³
+	if ($this->{opt}{numerical_key}) {
+	    last if ($searchKey < $k);
+	}
+	else {
+	    last if ($searchKey lt $k);
+	}
 
 	$cdb = $e->{cdb};
     }
