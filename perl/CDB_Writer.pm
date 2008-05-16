@@ -10,9 +10,10 @@ use strict;
 use CDB_File;
 use Encode;
 use File::stat;
+use File::Basename;
 
 sub new {
-    my ($class, $dbname, $keyfp, $limit_file_size, $fetch) = @_;
+    my ($class, $dbname, $keymapfile, $limit_file_size, $fetch) = @_;
 
     my $this = {
 	dbname => $dbname,
@@ -32,7 +33,10 @@ sub new {
     my $tmpfile = "$file.$$";
     $this->{cdb} = new CDB_File ($file, $tmpfile) or die;
     $this->{tmpfile} = $tmpfile;
-    open($this->{keymap}, "> $keyfp") or die;
+
+    my $dbdir = dirname($dbname);
+    my $keyfp = "$dbdir/$keymapfile";
+    open($this->{keymap}, ">:utf8", "$keyfp") or die;
 
     bless $this;
 }
@@ -64,7 +68,8 @@ sub add {
 	    $this->{record_counter} = 0;
 
 	    # 最も小さいキーの値とCDBファイルの対応を保存
-	    print {$this->{keymap}} "$key $file\n";
+	    my $filebase = basename($file);
+	    print {$this->{keymap}} "$key $filebase\n";
 	}
     }
 
