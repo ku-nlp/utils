@@ -363,20 +363,14 @@ sub CheckConditionTail {
 	|| $bunrui =~ /(?:副詞的|形式)名詞/ # 形式名詞（もの, こと..)/副詞的名詞(よう, とき..)
 	|| $fstring =~ /<記号>/ # 名詞相当語 かつ 記号 .. ●,《, ＠など
                                        # 名詞相当語 かつ 時間辞 .. 1960年代半ばの「代」など
-                                       # 数字 .. もし入れると新聞記事やブログの日付が大量に混入?
 	|| $hinsi eq '接頭辞' # 「イースター島再来訪」から「イースター島再」を排除
 	|| $midasi =~ /・/
 	# ★以下の二行を設けてるのは過渡的（そのうち上の行を削除し、下の行の<非独立タグ接尾辞>の条件を削除）
 	|| ($fstring =~ /<非独立タグ接尾辞>/ && $fstring !~ /<意味有>/) # 非独立接尾辞はNG ただし<意味有>がついている(個、つ、県、化、性など)ならばOK
 	|| ($hinsi eq '接尾辞' && $fstring !~ /<非独立タグ接尾辞>/ && $fstring !~ /<準?内容語>/) # 接尾辞はNG ただし<準?内容語>がついている(個、つ、県、化、性など)ならばOK
-	|| ($this->{option}{clustering} && $midasi eq '等')) {
-
-	if ($this->{option}{clustering}) {
-	    # 「安倍晋三」の「三」のように、その前の形態素の品詞が人名の場合はOK
-	    if ($fstring =~ /<数字>/ && $i != 0 && $mrph_list->[$i-1]->bunrui eq '人名') {
-		return 1;
-	    }
-	}
+	|| ($this->{option}{clustering} && $midasi eq '等')
+	# 「飲み方」で「飲み」で終わるのを禁止
+	|| (defined $mrph_list->[$i + 1] && $hinsi eq '名詞' && $fstring =~ /<代表表記:.+?v>/ && $mrph_list->[$i + 1]->midasi eq '方')) {
 	return 0;
     }
     else {
