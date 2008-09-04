@@ -20,17 +20,16 @@ sub new {
     my $dbdir = dirname($keymapfile);
 
     $this->{map} = [];
-    open(READER, '<:utf8', $keymapfile);
+
+    my ($file0) = ($keymapfile =~ /([^\/]+)\.keymap/);
+    $file0 .= '.0';
+    tie my %cdb, 'CDB_File', "$dbdir/$file0" or die "$0: can't tie to $dbdir/$file0 $!\n";
+    push(@{$this->{map}}, {key => undef, cdb => \%cdb});
+
+    open(READER, '<:utf8', $keymapfile) or die "$!";
     while (<READER>) {
 	chop($_);
 	my ($k, $file) = split(' ', $_);
-	if (scalar(@{$this->{map}}) < 1) {
-	    my ($file0) = ($file =~ /([^\/]+)\.\d+/);
-	    $file0 .= ".0";
-	    tie my %cdb, 'CDB_File', "$dbdir/$file0" or die "$0: can't tie to $dbdir/$file0 $!\n";
-	    push(@{$this->{map}}, {key => undef, cdb => \%cdb});
-	}
-
 	tie my %cdb, 'CDB_File', "$dbdir/$file" or die "$0: can't tie to $dbdir/$file $!\n";
 	push(@{$this->{map}}, {key => $k, cdb => \%cdb});
     }
