@@ -120,6 +120,24 @@ sub ExtractCompoundNounfromBnst {
 	&print_conditions(\@mrph_list, \@is_ok_for_head, \@is_ok_for_mid, \@is_ok_for_tail);
     }
 
+
+    # $option->{'subject'} が指定された場合は文中の主題をチェックする
+    my @flag = ();
+    if ($option->{'subject'}) {
+
+	for (my $i = scalar @mrph_list - 1; $i >= 0; $i--) {
+
+	    #「は」の直前の形態素が複合名詞の末尾になり得れば，その形態素にフラグを立てる
+	    if ($mrph_list[$i]{'hinsi'} eq '助詞' && $mrph_list[$i]{'genkei'} eq 'は') {
+
+		if ($i - 1 >= 0 && $is_ok_for_tail[$i-1]) {
+		    $flag[$i-1] = 1;
+		}
+	    }
+	}
+    }
+
+
     # ループを回して複合名詞を探す。
     #
     # ex) 自然 言語 処理 と は、
@@ -239,7 +257,19 @@ sub ExtractCompoundNounfromBnst {
 	    next if (!$is_ok_for_head[$j]);
 
 	    $mrph_used_num[$j]++;
-	    push @word_list, { midasi => $midasi, repname => $repname, mrphnum => $mrphnum , jiritsu_mrph_num => $jiritsu_mrph_num};
+
+	    if (! $option->{'subject'}) {
+		push @word_list, { midasi => $midasi, repname => $repname, mrphnum => $mrphnum , jiritsu_mrph_num => $jiritsu_mrph_num};
+	    }
+	    # $option->{'subject'} が指定された場合は文中の主題をチェックする
+	    else {
+		if ($flag[$i]) {
+		    push @word_list, { midasi => $midasi, repname => $repname, mrphnum => $mrphnum , jiritsu_mrph_num => $jiritsu_mrph_num, 'subject' => 1}; # subject = 1 の複合名詞は文中で主題として出現
+		} else {
+		    push @word_list, { midasi => $midasi, repname => $repname, mrphnum => $mrphnum , jiritsu_mrph_num => $jiritsu_mrph_num, 'subject' => 0};
+		}
+	    }
+
 
 	    $word_list[-1]{verbose} = $verbose if $this->{option}{get_verbose};
 
