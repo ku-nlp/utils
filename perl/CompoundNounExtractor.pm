@@ -272,6 +272,8 @@ sub ExtractCompoundNounfromBnst {
 
 
 	    $word_list[-1]{verbose} = $verbose if $this->{option}{get_verbose};
+	    $word_list[-1]{start_mrphnum} = $j if $this->{option}{get_start_end_mrphnum};
+	    $word_list[-1]{end_mrphnum} = $i if $this->{option}{get_start_end_mrphnum};
 
 	    # 末尾の形態素が未定義語ならば、その複合名詞にundef_flagを追加
 	    # ただし、「品曖-その他」または「品曖-カタカナ」のみを未定義語とみなし、

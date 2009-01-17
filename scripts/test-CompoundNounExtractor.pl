@@ -15,7 +15,7 @@ use CompoundNounExtractor;
 use Getopt::Long;
 
 my (%opt);
-GetOptions(\%opt, 'longest', 'clustering', 'mrphnummax=i', 'lengthmax=i', 'length_max_one_word_each=i', 'centered_dot_num_max=i', 'get_verbose', 'connect_hyphen', 'no_check_same_char_type', 'debug', 'no_yomi_in_repname', 'array_input');
+GetOptions(\%opt, 'longest', 'clustering', 'mrphnummax=i', 'lengthmax=i', 'length_max_one_word_each=i', 'centered_dot_num_max=i', 'get_verbose', 'connect_hyphen', 'no_check_same_char_type', 'debug', 'no_yomi_in_repname', 'array_input', 'get_start_end_mrphnum');
 &usage if $opt{help};
 
 my $option;
@@ -29,6 +29,7 @@ $option->{CENTERED_DOT_NUM_MAX} = $opt{centered_dot_num_max} if $opt{centered_do
 $option->{connect_hyphen} = $opt{connect_hyphen} if $opt{connect_hyphen};
 $option->{no_check_same_char_type} = $opt{no_check_same_char_type} if $opt{no_check_same_char_type};
 $option->{no_yomi_in_repname} = $opt{no_yomi_in_repname} if $opt{no_yomi_in_repname};
+$option->{get_start_end_mrphnum} = $opt{get_start_end_mrphnum} if $opt{get_start_end_mrphnum};
 
 my $cne = new CompoundNounExtractor($option);
 
@@ -79,6 +80,11 @@ while (<>) {
 		    foreach my $tmp (@words) {
 			print "midasi:$tmp->{midasi} repname:$tmp->{repname}";
 			print " verbose:$tmp->{verbose}" if $opt{get_verbose};
+			# 開始・終了形態素位置
+			if ($opt{get_start_end_mrphnum}) {
+			    print " start_mrphnum:$tmp->{start_mrphnum}";
+			    print " end_mrphnum:$tmp->{end_mrphnum}"  
+			}
 			print "\n\n";
 		    }
 		}
