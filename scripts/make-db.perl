@@ -2,7 +2,7 @@
 
 # $Id$
 
-# usage: perl -I../perl make-db.perl --dbname /somewhere/test.cdb --keymapfile test.keymap < test.txt
+# usage: perl -I../perl make-db.perl --dbname /somewhere/test.cdb --keymapfile test.cdb.keymap < test.txt
 # keymapfileはdbnameと同じディレクトリの下にできる
 
 use strict;
