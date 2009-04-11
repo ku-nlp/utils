@@ -68,4 +68,15 @@ sub get {
     return $cdb->{$searchKey};
 }
 
+sub getCDBs {
+    my ($this) = @_;
+
+    my @cdbs = ();
+    foreach my $cdb (@{$this->{map}}) {
+	push (@cdbs, $cdb->{cdb});
+    }
+
+    return \@cdbs;
+}
+
 1;
