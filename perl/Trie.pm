@@ -5,12 +5,14 @@ package Trie;
 use utf8;
 use strict;
 use Encode;
+use URI::Escape qw/uri_escape_utf8/;
 use Regexp::Trie;
 use Unicode::Japanese;
 use JICFS;
 use BerkeleyDB;
 use Storable;
 use MLDBM qw(BerkeleyDB::Hash Storable);
+use CDB_File;
 
 sub new {
     my ($this, $opt) = @_;
@@ -27,6 +29,8 @@ sub new {
 	$this->{juman} = new Juman;
     }
 
+    tie(%{$this->{JanListDB}}, 'CDB_File', $Constant::JanListDB) or die "$!\n";
+
     bless $this;
 
     return $this;
@@ -38,11 +42,13 @@ sub DESTROY {
     if ($this->{opt}{retrievedb}) {
 	untie %{$this->{trie}};
     }
+
+    untie %{$this->{JanListDB}};
 }
 
 # テキスト中から商品名をみつける
 sub DetectGoods {
-    my ($this, $mrphs, $repnames) = @_;
+    my ($this, $mrphs, $repnames, $option) = @_;
 
     unless ($repnames) {
 	@{$repnames} = map { $this->GetRepname($_) } @{$mrphs};
@@ -52,6 +58,7 @@ sub DetectGoods {
 
     for (my $i = 0; $i < @{$mrphs}; $i++) {
 	my $match_flag = 0;
+	my $match_id;
 	my $end_j;
 	my $ref = $this->{trie};
 
@@ -66,6 +73,7 @@ sub DetectGoods {
 	    # terminator
 	    if ($ref->{''}) {
 		$match_flag = 1;
+		$match_id = $ref->{''};
 		$end_j = $j - 1;
 		
 		# 唯一のterminator
@@ -84,11 +92,28 @@ sub DetectGoods {
 	}
 	# マッチした
 	if ($match_flag) {
-	    $outputtext .= '「';
+	    my $string;
 	    for my $k ( $i .. $end_j) {
-		$outputtext .= $mrphs->[$k]->midasi;
+		$string .= $mrphs->[$k]->midasi;
 	    }
-	    $outputtext .= '」';
+
+	    if (defined $option->{html}) {
+		my $token = $this->{opt}{token};
+
+		my $jan_name = decode('utf8', $this->{JanListDB}{$match_id});
+
+		# $product_name_for_slip_kanjiが正式名称
+		my ($product_name_kanji, $product_name_for_slip_kanji) = split(':', $jan_name);
+
+		$outputtext .=  qq(<a target="_blank" onMouseOver="return overlib('$match_id/$product_name_kanji/$product_name_for_slip_kanji')" onMouseOut="return nd()" href="http://webservice.valuecommerce.ne.jp/productdb/search?token=$token&keyword=);
+		$outputtext .= uri_escape_utf8($product_name_for_slip_kanji);
+		$outputtext .= qq(&category=&sub_store=&merchant=&price_min=&price_max=&rate_min=&rate_max=&fixed_min=&fixed_max=&fee_min=&fee_max=&vcptn=&page=&results_per_page=&maxhits=&sort_by=score&sort_order=desc&adult=n">);
+	    }
+	    else {
+		$outputtext .= '「';
+	    }
+	    $outputtext .= $string;
+	    $outputtext .= defined $option->{html} ? '</a>' : '」';
 
 	    # 最後にマッチしたところまで進める
 	    $i = $end_j;
@@ -104,7 +129,7 @@ sub DetectGoods {
 
 # stringをtrie構造に追加
 sub Add {
-    my ($this, $string) = @_;
+    my ($this, $string, $id) = @_;
 
     $string =~ s/^\s+//;
     $string =~ s/\s+$//;
@@ -127,7 +152,7 @@ sub Add {
 	    $ref->{$repname} ||= {};
 	    $ref = $ref->{$repname};
 	}
-	$ref->{''} = 1; # { '' => 1 } as terminator
+	$ref->{''} = defined $id ? $id : 1; # { '' => 1 } as terminator
     }
     else {
 	$this->{trie}->add($string);
