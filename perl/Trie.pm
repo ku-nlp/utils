@@ -105,9 +105,9 @@ sub DetectGoods {
 		# $product_name_for_slip_kanjiが正式名称
 		my ($product_name_kanji, $product_name_for_slip_kanji) = split(':', $jan_name);
 
-		$outputtext .=  qq(<a target="_blank" onMouseOver="return overlib('$match_id/$product_name_kanji/$product_name_for_slip_kanji')" onMouseOut="return nd()" href="http://webservice.valuecommerce.ne.jp/productdb/search?token=$token&keyword=);
-		$outputtext .= uri_escape_utf8($product_name_for_slip_kanji);
-		$outputtext .= qq(&category=&sub_store=&merchant=&price_min=&price_max=&rate_min=&rate_max=&fixed_min=&fixed_max=&fee_min=&fee_max=&vcptn=&page=&results_per_page=&maxhits=&sort_by=score&sort_order=desc&adult=n">);
+		$outputtext .=  qq(<a target="_blank" onMouseOver="return overlib('$match_id/$product_name_kanji/$product_name_for_slip_kanji')" onMouseOut="return nd()" href="http://api.rakuten.co.jp/rws/2.0/rest?developerId=$token&operation=ItemSearch&version=2009-04-15&keyword=);
+		$outputtext .= uri_escape_utf8($product_name_kanji);
+		$outputtext .= qq(">);
 	    }
 	    else {
 		$outputtext .= '「';
