@@ -65,7 +65,7 @@ sub DetectGoods {
 	my $j = $i;
 	while ($j <= @{$mrphs}) {
 
-	    if ($this->SkipMrph($repnames->[$j])) {
+	    if ($this->SkipMrph($repnames->[$j], $mrphs->[$j])) {
 		$j++;
 		next;
 	    }
@@ -105,8 +105,8 @@ sub DetectGoods {
 		# $product_name_for_slip_kanjiが正式名称
 		my ($product_name_kanji, $product_name_for_slip_kanji) = split(':', $jan_name);
 
-		$outputtext .=  qq(<a target="_blank" onMouseOver="return overlib('$match_id/$product_name_kanji/$product_name_for_slip_kanji')" onMouseOut="return nd()" href="http://api.rakuten.co.jp/rws/2.0/rest?developerId=$token&operation=ItemSearch&version=2009-04-15&keyword=);
-		$outputtext .= uri_escape_utf8($product_name_kanji);
+		my $product_name_kanji_utf8 = uri_escape_utf8($product_name_kanji);
+		$outputtext .=  qq(<a onMouseOver="return overlib('$match_id/$product_name_kanji/$product_name_for_slip_kanji')" onMouseOut="return nd()" href="JavaScript:mashup080709_function('$product_name_kanji_utf8')");
 		$outputtext .= qq(">);
 	    }
 	    else {
@@ -161,8 +161,12 @@ sub Add {
 
 # Trie構築時、解析時ともにスキップする形態素をチェック
 sub SkipMrph {
-    my ($this, $repname) = @_;
+    my ($this, $repname, $mrph) = @_;
 
+    if (defined $mrph) {
+	return 1 if $mrph->genkei eq 'する';
+	return 1 if $mrph->bunrui eq '記号';
+    }
     return 1 if $repname eq '　/　';
 }
 
