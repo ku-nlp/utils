@@ -41,31 +41,46 @@ sub new {
 sub DESTROY {
     my ($this) = @_;
 
-    for (my $i = 1; $i < scalar(@{$this->{map}}); $i++) {
+    for (my $i = 0; $i < scalar(@{$this->{map}}); $i++) {
+	untie $this->{map}[$i]{cdb};
+    }
+}
+
+sub close {
+    my ($this) = @_;
+
+    for (my $i = 0; $i < scalar(@{$this->{map}}); $i++) {
 	untie $this->{map}[$i]{cdb};
     }
 }
 
 sub get {
-    my ($this, $searchKey) = @_;
+    my ($this, $searchKey, $opt) = @_;
 
-    my $cdb = $this->{map}[0]{cdb};
-    for (my $i = 1; $i < scalar(@{$this->{map}}); $i++) {
-	my $e = $this->{map}[$i];
-	my $k = $e->{key};
-
-	# keyが数字でsortされているオプション
-	if ($this->{opt}{numerical_key}) {
-	    last if ($searchKey < $k);
+    if ($opt->{exhaustive}) {
+	for (my $i = 0; $i < scalar(@{$this->{map}}); $i++) {
+	    my $value = $this->{map}[$i]{cdb}{$searchKey};
+	    return $value if (defined $value);
 	}
-	else {
-	    last if ($searchKey lt $k);
-	}
+	return undef;
+    } else {
+	my $cdb = $this->{map}[0]{cdb};
+	for (my $i = 1; $i < scalar(@{$this->{map}}); $i++) {
+	    my $e = $this->{map}[$i];
+	    my $k = $e->{key};
 
-	$cdb = $e->{cdb};
+	    # keyが数字でsortされているオプション
+	    if ($this->{opt}{numerical_key}) {
+		last if ($searchKey < $k);
+	    }
+	    else {
+		last if ($searchKey lt $k);
+	    }
+
+	    $cdb = $e->{cdb};
+	}
+	return $cdb->{$searchKey};
     }
-
-    return $cdb->{$searchKey};
 }
 
 sub getCDBs {
