@@ -1,0 +1,388 @@
+2009-12-24  Keiji Shinzato  <shinzato@nlp.kuee.kyoto-u.ac.jp>
+
+	* perl/CDB_Writer.pm: die した後にファイル名を出力するように.
+
+	* perl/CDB_Reader.pm:
+	getメソッドに対して、全てのcdbを引くオプションを追加(exhaustive).
+
+2009-04-11  Keiji Shinzato  <shinzato@nlp.kuee.kyoto-u.ac.jp>
+
+	* perl/CDB_Reader.pm: tieしているCDBのリストを返すメソッドの追加.
+
+2009-03-30  Tomohide Shibata, KYOTOU  <shibata@iccc010.crawl.kclab.jgn2.jp>
+
+	* scripts/make-db.perl: small change.
+
+2009-02-08  Keiji Shinzato  <shinzato@nlp.kuee.kyoto-u.ac.jp>
+
+	* scripts/test-VBC.perl, perl/VariableByteCode.pm: added.
+
+2009-01-17  Tomohide Shibata, KYOTOU  <shibata@iccc010.crawl.kclab.jgn2.jp>
+
+	* scripts/test-CompoundNounExtractor.pl, perl/CompoundNounExtractor.pm:
+	複合名詞の先頭形態素IDと末尾形態素IDを返すオプションを追加
+
+2009-01-16  Jun Harashima, KYOTOU  <harashima@iccc010.crawl.kclab.jgn2.jp>
+
+	* perl/CompoundNounExtractor.pm:
+	オプション subject が指定された場合は文中の主題をチェックするようにした．
+
+2008-09-04  Keiji Shinzato  <shinzato@nlp.kuee.kyoto-u.ac.jp>
+
+	* perl/CDB_Reader.pm:
+	*.keymapfileが空の時でも*.cdb.0ファイルをロードするようにした.
+
+2008-07-03  Tomohide Shibata, KYOTOU  <shibata@iccc010.crawl.kclab.jgn2.jp>
+
+	* scripts/test-CheckStrangeMrph.pl: added.
+
+2008-05-18  Tomohide Shibata, KYOTOU  <shibata@iccc010.crawl.kclab.jgn2.jp>
+
+	* perl/CompoundNounExtractor.pm:
+	「飲み方」から「飲み」が抽出されないように変更
+
+2008-05-16  Tomohide Shibata, KYOTOU  <shibata@iccc010.crawl.kclab.jgn2.jp>
+
+	* perl/CompoundNounExtractor.pm: 複合名詞の最後に<数字>を許すように
+
+	* scripts/read-db.perl: added.
+
+	* perl/CDB_Reader.pm: keyが数字でsortされているオプションを追加
+
+	* scripts/make-db.perl: すべてオプション化
+
+	* perl/CDB_Writer.pm: データベースのファイル名だけを保存するように変更
+
+2008-05-15  Keiji Shinzato  <shinzato@nlp.kuee.kyoto-u.ac.jp>
+
+	* scripts/make-db.perl: added.
+
+2008-04-30  Keiji Shinzato  <shinzato@nlp.kuee.kyoto-u.ac.jp>
+
+	* perl/CDB_Reader.pm: added.
+
+2008-03-31  Tomohide Shibata, KYOTOU  <shibata@iccc010.crawl.kclab.jgn2.jp>
+
+	* perl/CompoundNounExtractor.pm:
+	複数文節が入力の場合も、形態素上限などの条件をこえたらその文節からは何も抽出しないように変更
+
+2008-03-27  Tomohide Shibata, KYOTOU  <shibata@iccc010.crawl.kclab.jgn2.jp>
+
+	* perl/CompoundNounExtractor.pm:
+	旧バージョンのKNPで動かした時のbug fix.
+
+2008-03-26  Tomohide Shibata, KYOTOU  <shibata@iccc010.crawl.kclab.jgn2.jp>
+
+	* perl/CompoundNounExtractor.pm:
+	文節列が入力の場合、longestオプションが有効ならlongest_flagがたっているもののみを返すように変更
+
+	* scripts/test-CompoundNounExtractor.pl:
+	文節列が入力の場合もlongestオプションを有効に
+
+	* perl/CompoundNounExtractor.pm:
+	複合名詞の最後にこれる条件をチェックする際に、ひらがな一文字ではないという条件に接尾辞ではないという条件を追加
+
+2008-03-15  Keiji Shinzato  <shinzato@nlp.kuee.kyoto-u.ac.jp>
+
+	* scripts/merge_files.perl: added.
+
+2008-03-12  Tomohide Shibata, KYOTOU  <shibata@iccc010.crawl.kclab.jgn2.jp>
+
+	* perl/CompoundNounExtractor.pm:
+	clusteringオプション時に、「当」病院、「同」病院などを除くように
+
+	* scripts/test-CompoundNounExtractor.pl:
+	複数文節を入力とするオプション(array_input)を追加(クラスタリング用)
+
+	* perl/CompoundNounExtractor.pm:
+	内容語などのfeatureの変更に対応（しばらくは変更前、変更後のどちらにも対応）
+
+2008-03-08  Tomohide Shibata, KYOTOU  <shibata@iccc010.crawl.kclab.jgn2.jp>
+
+	* perl/CompoundNounExtractor.pm: bug fixed.
+
+2008-03-07  Tomohide Shibata, KYOTOU  <shibata@iccc010.crawl.kclab.jgn2.jp>
+
+	* scripts/test-CompoundNounExtractor.pl, perl/CompoundNounExtractor.pm:
+	代表表記の読みを削除するオプション(no_yomi_in_repname)を追加
+
+2008-02-01  Tomohide Shibata, KYOTOU  <shibata@iccc010.crawl.kclab.jgn2.jp>
+
+	* scripts/test-CompoundNounExtractor.pl, perl/CompoundNounExtractor.pm:
+	前後の文字種が同一かどうかのチェックを行なわないオプション(no_check_same_char_type)を追加
+
+	* scripts/test-CompoundNounExtractor.pl, perl/CompoundNounExtractor.pm:
+	全角ハイフンで複合名詞を切断しないオプション(connect_hyphen)を追加
+
+2008-01-23  Tomohide Shibata, KYOTOU  <shibata@iccc010.crawl.kclab.jgn2.jp>
+
+	* perl/DetectPersonAfterJuman.pm:
+	漢字一文字＋漢字一文字＋人名末尾 => 最初の二文字を人名に
+	(例: 糸 川 先生)
+
+	* perl/DetectPersonAfterJuman.pm:
+	人名姓と普通名詞などの曖昧性がある場合に、人名姓のみにするように変更
+
+	例:
+	野原 のはら 野原 名詞 6 普通名詞 1 * 0 * 0 "カテゴリ:場所-自然 代表表記:野原/のはら"
+	@ 野原 のはら 野原 名詞 6 人名 5 * 0 * 0 "日本人名:姓:742:0.00022"
+	 ↓
+	野原 のはら 野原 名詞 6 人名 5 * 0 * 0 "日本人名:姓:742:0.00022"
+
+	* perl/DetectPersonAfterJuman.pm:
+	日本人姓をチェックするときに、形態素に曖昧性がある場合、すべてチェックするように修正
+
+	例:
+	野原 のはら 野原 名詞 6 普通名詞 1 * 0 * 0 "カテゴリ:場所-自然 代表表記:野原/のはら"
+	@ 野原 のはら 野原 名詞 6 人名 5 * 0 * 0 "日本人名:姓:742:0.00022"
+
+2008-01-22  Tomohide Shibata, KYOTOU  <shibata@iccc010.crawl.kclab.jgn2.jp>
+
+	* perl/DetectPersonAfterJuman.pm:
+	「(人名姓) + X + 相」の「X相」は人名にならないように修正
+	(例: 河野 外 相)
+
+	* perl/DetectPersonAfterJuman.pm: bug fixed.
+
+	* scripts/test-DetectPersonAfterJuman.pl:
+	モジュールの中でprintするように変更
+
+	* perl/DetectPersonAfterJuman.pm:
+	人名疑の漢字一文字の形態素を連結するように変更
+	(例: 富 + 市 -> 富市)
+
+	* perl/DetectPersonAfterJuman.pm: 変数名の変更
+
+2008-01-21  Tomohide Shibata, KYOTOU  <shibata@iccc010.crawl.kclab.jgn2.jp>
+
+	* scripts/test-DetectPersonAfterJuman.pl, perl/DetectPersonAfterJuman.pm:
+	added.
+
+2008-01-04  Tomohide Shibata, KYOTOU  <shibata@iccc010.crawl.kclab.jgn2.jp>
+
+	* perl/CompoundNounExtractor.pm:
+	形態素数、文字数などの上限を指定する変数をグローバル変数ではなく、メンバ変数に変更
+
+2007-12-17  Tomohide Shibata, KYOTOU  <shibata@iccc010.crawl.kclab.jgn2.jp>
+
+	* perl/CompoundNounExtractor.pm:
+	返り値のrepnameにおいて、形態素の曖昧性を復元できるように変更(KNP.pmのメソッドrepnamesを利用)
+	(例: 目/め+蕪/かぶ -> 目/め?芽/め+蕪/かぶ)
+
+2007-12-15  nakazawa  <nakazawa@iccc010.crawl.kclab.jgn2.jp>
+
+	* perl/EditDistance.pm: Delete binmode.
+
+2007-12-12  Yasuo Banba, KYOTOU  <banba@iccc010.crawl.kclab.jgn2.jp>
+
+	* scripts/test-TransLiterate.pl, perl/TransLiterate.pm: added.
+
+2007-12-06  Tomohide Shibata, KYOTOU  <shibata@iccc010.crawl.kclab.jgn2.jp>
+
+	* perl/CompoundNounExtractor.pm:
+	形態素列が入力された場合に対応(クラスタリング用)
+
+2007-12-03  Tomohide Shibata, KYOTOU  <shibata@iccc010.crawl.kclab.jgn2.jp>
+
+	* perl/CheckStrangeMrph.pm: small change.
+
+	* perl/CheckStrangeMrph.pm: added.
+
+2007-12-01  Keiji Shinzato  <shinzato@nlp.kuee.kyoto-u.ac.jp>
+
+	* perl/CDB_Writer.pm: added.
+
+2007-11-14  Tomohide Shibata, KYOTOU  <shibata@iccc010.crawl.kclab.jgn2.jp>
+
+	* scripts/test-CompoundNounExtractor.pl: get_verboseオプションを追加
+
+	* perl/CompoundNounExtractor.pm:
+	get_verboseオプションにより、形態素列の詳細な情報を得られるように変更
+	（今のところ、「見出し|品詞|分類|fstring」が「+」で連結されたものが返ってくる）
+
+2007-11-10  Tomohide Shibata, KYOTOU  <shibata@iccc010.crawl.kclab.jgn2.jp>
+
+	* perl/CompoundNounExtractor.pm:
+	非独立タグ接頭辞を複合名詞に含めるように変更（「お客様」が「客様」にならないように）
+
+2007-11-07  nakazawa  <nakazawa@iccc010.crawl.kclab.jgn2.jp>
+
+	* scripts/test-EditDistance.pl, perl/EditDistance.pm: Consider context.
+	my $edit_distance = new EditDistance({del_penalty => 1,
+					      ins_penalty => 1,
+					      rep_penalty => 1.5,
+					      penalty => "../dat/EditDistanceContext.dat"});
+
+	* dat/EditDistanceContext.dat: Added.
+
+2007-11-06  Tomohide Shibata, KYOTOU  <shibata@iccc010.crawl.kclab.jgn2.jp>
+
+	* perl/CompoundNounExtractor.pm:
+	全角空白の前後の形態素の長さが一文字の場合、複合名詞の途中にこれないように変更 (例:「紹　介」)
+	 (本質的には、標準フォーマット変換時に空白をちゃんと扱うようにする)
+
+2007-11-05  Tomohide Shibata, KYOTOU  <shibata@iccc010.crawl.kclab.jgn2.jp>
+
+	* perl/CompoundNounExtractor.pm:
+	前後の形態素の文字種（ひらがな、カタカナ、漢字、アルファベット）が同じ場合のみ、全角空白が複合名詞の途中にこれるように変更
+
+2007-10-30  Tomohide Shibata, KYOTOU  <shibata@iccc010.crawl.kclab.jgn2.jp>
+
+	* perl/CompoundNounExtractor.pm:
+	入力が複数文節の場合、文字数などの上限を超えてもそこでreturnしないように変更
+
+	* perl/CompoundNounExtractor.pm:
+	各形態素が先頭/真ん中/最後にこれるかどうかをチェックするときに、真ん中にこれるかどうかを最初にチェックすることにより少し高速化
+
+2007-10-29  Tomohide Shibata, KYOTOU  <shibata@iccc010.crawl.kclab.jgn2.jp>
+
+	* scripts/test-CompoundNounExtractor.pl:
+	複合名詞中の中黒数の上限数をオプションで指定できるように
+
+	* perl/CompoundNounExtractor.pm:
+	複合名詞中の中黒数の上限数を指定できるように(デフォルト3。-1にすると、中黒数の制限を設けない)
+
+	* scripts/test-CompoundNounExtractor.pl:
+	文字数の最大上限数をオプションで指定できるように
+
+	* perl/CompoundNounExtractor.pm:
+	形態素数の最大上限数や文字数の最大上限数を超えた場合、その文節からは何も抽出しないように変更
+	形態素数の最大上限数や文字数の最大上限数をオプションで指定できるように
+
+2007-10-27  Tomohide Shibata, KYOTOU  <shibata@iccc010.crawl.kclab.jgn2.jp>
+
+	* perl/ColorKNP.pm: small change.
+
+	* perl/ColorKNP.pm: コードの整理
+	一つの形態素/基本句/文節に対して、複数の装飾（文字色と下線など）ができるオプションを追加
+
+	* scripts/test-CompoundNounExtractor.pl:
+	複合名詞中の形態素数の最大上限数をオプションで指定できるように
+
+	* perl/CompoundNounExtractor.pm:
+	複合名詞中の形態素数の最大上限数のデフォルトを100から25に変更
+	複合名詞中の形態素数の最大上限数をオプションで指定できるように
+
+	* scripts/test-CompoundNounExtractor.pl: clusteringオプションを追加
+
+2007-10-26  Tomohide Shibata, KYOTOU  <shibata@iccc010.crawl.kclab.jgn2.jp>
+
+	* perl/ColorKNP.pm:
+	デフォルトカラーを少し変更、文字色以外の装飾もできるように変更
+
+2007-10-23  Tomohide Shibata, KYOTOU  <shibata@iccc010.crawl.kclab.jgn2.jp>
+
+	* perl/CompoundNounExtractor.pm: small change.
+
+	* perl/CompoundNounExtractor.pm:
+	クラスタリング専用の条件を有効にするclusteringオプションを追加
+
+	* perl/CompoundNounExtractor.pm:
+	入力が複数文節の場合に、最長複合名詞にflagを立てる
+	複合名詞抽出条件の微調整
+
+	* perl/CompoundNounExtractor.pm:
+	入力に複数文節を受け付けるように変更(「子供の体力低下」が複合名詞としてとれるようにできる)
+
+	* perl/CompoundNounExtractor.pm:
+	複合名詞の先頭/途中/最後にこれる条件を最初にチェックすることにより、何度も条件をチェックせずにすむように変更
+
+	* scripts/test-CompoundNounExtractor.pl: debugオプションを追加
+
+2007-10-22  Tomohide Shibata, KYOTOU  <shibata@iccc010.crawl.kclab.jgn2.jp>
+
+	* perl/CompoundNounExtractor.pm: 複合名詞抽出条件の微調整
+	(先頭で、拗音・長音を禁止、<人名末尾>の禁止を撤廃,
+	 最後で、<意味有>のついていない<非独立タグ接尾辞>を禁止)
+
+	* perl/CompoundNounExtractor.pm:
+	複合名詞の最後の形態素の条件に<かな漢字>を追加（東京都の「都」がはじかれないようにするため）
+
+2007-10-18  Tomohide Shibata, KYOTOU  <shibata@iccc010.crawl.kclab.jgn2.jp>
+
+	* perl/CompoundNounExtractor.pm: 変数名の変更
+
+2007-10-11  Tomohide Shibata, KYOTOU  <shibata@iccc010.crawl.kclab.jgn2.jp>
+
+	* perl/CompoundNounExtractor.pm: 仕様変更に伴い、コメントの修正
+
+2007-09-14  Tomohide Shibata, KYOTOU  <shibata@iccc010.crawl.kclab.jgn2.jp>
+
+	* perl/CompoundNounExtractor.pm: small bug fixed.
+
+2007-07-27  Tomohide Shibata, KYOTOU  <shibata@iccc010.crawl.kclab.jgn2.jp>
+
+	* perl/CompoundNounExtractor.pm: コメント修正
+
+	* perl/CompoundNounExtractor.pm:
+	接尾辞から始まる複合名詞をとらない条件を、featureの<付属>ではなく、品詞が接尾辞かをチェックするように変更
+
+2007-06-28  Tomohide Shibata, KYOTOU  <shibata@iccc010.crawl.kclab.jgn2.jp>
+
+	* perl/CompoundNounExtractor.pm: 形態素数を返すように
+
+2007-06-07  Tomohide Shibata, KYOTOU  <shibata@iccc010.crawl.kclab.jgn2.jp>
+
+	* scripts/color-knp.pl, perl/ColorKNP.pm:
+	色をつける優先度を付けられるように、色をつけるリストを配列で持つように変更
+
+	* scripts/color-knp.pl, perl/ColorKNP.pm:
+	スクリプトの文字コードをutf8に
+
+	* scripts/color-knp.pl: 色付き文字を太字にするオプションを追加
+
+	* perl/ColorKNP.pm: オプションの初期値をnew時に設定するように
+	色付き文字を太字にするオプションを追加
+
+	* scripts/color-knp.pl: 主な関数をcolorKNP.pmに移動
+
+	* perl/ColorKNP.pm: added.
+
+2007-06-04  Tomohide Shibata, KYOTOU  <shibata@iccc010.crawl.kclab.jgn2.jp>
+
+	* scripts/color-knp.pl: KNP.pmを使ってコードを整理
+
+2007-05-31  nakazawa  <nakazawa@iccc010.crawl.kclab.jgn2.jp>
+
+	* perl/EditDistance.pm: パスの最後の/を削除
+
+	* perl/EditDistance.pm: パスの初期化し忘れを修正。
+
+2007-05-31  Tomohide Shibata, KYOTOU  <shibata@iccc010.crawl.kclab.jgn2.jp>
+
+	* scripts/test-CompoundNounExtractor.pl, perl/CompoundNounExtractor.pm:
+	midasi, repnameを配列ではなくハッシュで返すように変更
+
+2007-05-31  nakazawa  <nakazawa@iccc010.crawl.kclab.jgn2.jp>
+
+	* perl/EditDistance.pm, scripts/test-EditDistance.pl:
+	編集距離最短の経路をトレースできるようにした。
+
+2007-05-27  nakazawa  <nakazawa@iccc010.crawl.kclab.jgn2.jp>
+
+	* perl/EditDistance.pm, scripts/test-EditDistance.pl:
+	バグ修正とdebugオプションを追加
+
+	* perl/EditDistance.pm: 初期化のバグを修正
+
+	* scripts/test-EditDistance.pl, perl/EditDistance.pm:
+	二つの文字列間の編集距離を計算するモジュールと、
+	そのテストスクリプトを追加。
+
+2007-05-27  ryohei  <ryohei@iccc010.crawl.kclab.jgn2.jp>
+
+	* scripts/color-knp.pl:
+	knpの解析結果に色を付けるプログラム(color-knp.pl)を追加
+
+2007-05-25  Tomohide Shibata, KYOTOU  <shibata@iccc010.crawl.kclab.jgn2.jp>
+
+	* scripts/test-CompoundNounExtractor.pl, perl/CompoundNounExtractor.pm:
+	small change.
+
+	* scripts/test-CompoundNounExtractor.pl: added.
+
+	* scripts/test.pl: deleted.
+
+	* perl/CompoundNounExtractor.pm, scripts/test.pl: New file.
+
+	* perl/CompoundNounExtractor.pm, scripts/test.pl: added.
