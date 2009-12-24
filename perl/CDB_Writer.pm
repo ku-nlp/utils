@@ -31,12 +31,12 @@ sub new {
 
     my $file = "$this->{dbname}.$this->{num_of_cdbs}";
     my $tmpfile = "$file.$$";
-    $this->{cdb} = new CDB_File ($file, $tmpfile) or die;
+    $this->{cdb} = new CDB_File ($file, $tmpfile) or die "$! ($file)";
     $this->{tmpfile} = $tmpfile;
 
     my $dbdir = dirname($dbname);
     my $keyfp = "$dbdir/$keymapfile";
-    open($this->{keymap}, ">:utf8", "$keyfp") or die;
+    open($this->{keymap}, ">:utf8", "$keyfp") or die "$! ($keyfp)";
 
     bless $this;
 }
@@ -63,7 +63,7 @@ sub add {
 
 	    my $file = "$this->{dbname}.$this->{num_of_cdbs}";
 	    my $tmpfile = $file . ".$$";
-	    $this->{cdb} = new CDB_File ($file, $tmpfile) or die;
+	    $this->{cdb} = new CDB_File ($file, $tmpfile) or die "$! ($file)";
 	    $this->{tmpfile} = $tmpfile;
 	    $this->{record_counter} = 0;
 
