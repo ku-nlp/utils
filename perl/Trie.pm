@@ -29,7 +29,9 @@ sub new {
 	$this->{juman} = new Juman;
     }
 
-    tie(%{$this->{JanListDB}}, 'CDB_File', $Constant::JanListDB) or die "$!\n";
+    if (-e $Constant::JanListDB) {
+	tie(%{$this->{JanListDB}}, 'CDB_File', $Constant::JanListDB) or die "$!\n";
+    }
 
     bless $this;
 
@@ -106,21 +108,34 @@ sub DetectGoods {
 		my ($product_name_kanji, $product_name_for_slip_kanji) = split(':', $jan_name);
 
 		my $product_name_kanji_utf8 = uri_escape_utf8($product_name_kanji);
-		$outputtext .=  qq(<a onMouseOver="return overlib('$match_id/$product_name_kanji/$product_name_for_slip_kanji')" onMouseOut="return nd()" href="JavaScript:mashup080709_function('$product_name_kanji_utf8')");
-		$outputtext .= qq(">);
+		$outputtext .=  qq(<a onMouseOver=\"return overlib('$match_id/$product_name_kanji/$product_name_for_slip_kanji')\" onMouseOut=\"return nd()\" href=\"JavaScript:mashup080709_function('$product_name_kanji_utf8')\");
+		$outputtext .= qq(\">);
+	    }
+	    elsif (defined $option->{output_juman}) {
+		$mrphs->[$i]->push_imis("WP上位語:$match_id:$i-$end_j");
+		for my $k ( $i .. $end_j) {
+		    $outputtext .= $mrphs->[$k]->spec;
+		}
 	    }
 	    else {
 		$outputtext .= '「';
 	    }
-	    $outputtext .= $string;
-	    $outputtext .= defined $option->{html} ? '</a>' : '」';
+	    unless (defined $option->{output_juman}) {
+		$outputtext .= $string;
+		$outputtext .= defined $option->{html} ? '</a>' : '」';
+	    }
 
 	    # 最後にマッチしたところまで進める
 	    $i = $end_j;
 	}
 	# マッチしなかった
 	else {
-	    $outputtext .= $mrphs->[$i]->midasi;
+	    if (defined $option->{output_juman}) {
+		$outputtext .= $mrphs->[$i]->spec;
+	    }
+	    else {
+		$outputtext .= $mrphs->[$i]->midasi;
+	    }
 	}
     }
     return $outputtext;
