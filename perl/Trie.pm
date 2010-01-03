@@ -45,7 +45,7 @@ sub DESTROY {
 	untie %{$this->{trie}};
     }
 
-    untie %{$this->{JanListDB}};
+    untie %{$this->{JanListDB}} if defined $this->{JanListDB};
 }
 
 # テキスト中から商品名をみつける
@@ -112,9 +112,14 @@ sub DetectGoods {
 		$outputtext .= qq(\">);
 	    }
 	    elsif (defined $option->{output_juman}) {
-		$mrphs->[$i]->push_imis("WP上位語:$match_id:$i-$end_j");
+		my $add_imis = "WP上位語:$match_id:$i-$end_j";
+		$mrphs->[$i]->push_imis($add_imis);
 		for my $k ( $i .. $end_j) {
 		    $outputtext .= $mrphs->[$k]->spec;
+		    for my $doukei ($mrphs->[$k]->doukei) {
+			$doukei->push_imis($add_imis);
+			$outputtext .= '@ ' . $doukei->spec;
+		    }
 		}
 	    }
 	    else {
@@ -132,6 +137,10 @@ sub DetectGoods {
 	else {
 	    if (defined $option->{output_juman}) {
 		$outputtext .= $mrphs->[$i]->spec;
+		for my $doukei ($mrphs->[$i]->doukei) {
+		    $outputtext .= '@ ' . $doukei->spec;
+		}
+
 	    }
 	    else {
 		$outputtext .= $mrphs->[$i]->midasi;
