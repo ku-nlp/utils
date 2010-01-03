@@ -58,14 +58,15 @@ sub DetectGoods {
 
     my $outputtext;
 
-    for (my $i = 0; $i < @{$mrphs}; $i++) {
+    my $mrph_num = scalar @{$mrphs};
+    for (my $i = 0; $i < $mrph_num; $i++) {
 	my $match_flag = 0;
 	my $match_id;
 	my $end_j;
 	my $ref = $this->{trie};
 
 	my $j = $i;
-	while ($j <= @{$mrphs}) {
+	while ($j <= $mrph_num) {
 
 	    if ($this->SkipMrph($repnames->[$j], $mrphs->[$j])) {
 		$j++;
@@ -114,10 +115,12 @@ sub DetectGoods {
 	    elsif (defined $option->{output_juman}) {
 		my $add_imis = "WP上位語:$match_id:$i-$end_j";
 		$mrphs->[$i]->push_imis($add_imis);
+		for my $doukei ($mrphs->[$i]->doukei) {
+		    $doukei->push_imis($add_imis);
+		}
 		for my $k ( $i .. $end_j) {
 		    $outputtext .= $mrphs->[$k]->spec;
 		    for my $doukei ($mrphs->[$k]->doukei) {
-			$doukei->push_imis($add_imis);
 			$outputtext .= '@ ' . $doukei->spec;
 		    }
 		}
