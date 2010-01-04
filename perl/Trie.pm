@@ -68,11 +68,6 @@ sub DetectGoods {
 	my $j = $i;
 	while ($j <= $mrph_num) {
 
-	    if ($this->SkipMrph($repnames->[$j], $mrphs->[$j])) {
-		$j++;
-		next;
-	    }
-
 	    # terminator
 	    if ($ref->{''}) {
 		$match_flag = 1;
@@ -83,6 +78,12 @@ sub DetectGoods {
 		if (scalar keys %$ref == 1) {
 		    last;
 		}
+	    }
+
+	    # 先頭はskipしない
+	    if ($i != $j && $this->SkipMrph($repnames->[$j], $mrphs->[$j])) {
+		$j++;
+		next;
 	    }
 
 	    if (defined $ref->{$repnames->[$j]}) {
