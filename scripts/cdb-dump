@@ -1,0 +1,15 @@
+#!/usr/bin/env perl
+
+# $Id$
+
+use strict;
+use CDB_File;
+use utf8;
+use Encode;
+
+my $dbfp = shift(@ARGV);
+tie my %cdb, 'CDB_File', $dbfp or die "$0: can't tie to $dbfp $!\n";
+while (my ($k, $v) = (each %cdb)) {
+    print $k . " " . $v . "\n";
+}
+untie %cdb;
