@@ -48,8 +48,8 @@ sub DESTROY {
     untie %{$this->{JanListDB}} if defined $this->{JanListDB};
 }
 
-# テキスト中から商品名をみつける
-sub DetectGoods {
+# テキスト中から文字列をみつける
+sub DetectString {
     my ($this, $mrphs, $keys, $option) = @_;
 
     unless ($keys) {
