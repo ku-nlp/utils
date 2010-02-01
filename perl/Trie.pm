@@ -50,10 +50,10 @@ sub DESTROY {
 
 # テキスト中から商品名をみつける
 sub DetectGoods {
-    my ($this, $mrphs, $repnames, $option) = @_;
+    my ($this, $mrphs, $keys, $option) = @_;
 
-    unless ($repnames) {
-	@{$repnames} = map { $this->GetRepname($_) } @{$mrphs};
+    unless ($keys) {
+	@{$keys} = $this->{opt}{userepname} ? map { $this->GetRepname($_) } @{$mrphs} : map { $_->midasi } @{$mrphs};
     }
 
     my $outputtext;
@@ -81,13 +81,13 @@ sub DetectGoods {
 	    }
 
 	    # 先頭はskipしない
-	    if ($i != $j && $this->SkipMrph($repnames->[$j], $mrphs->[$j])) {
+	    if ($i != $j && $this->SkipMrph($keys->[$j], $mrphs->[$j])) {
 		$j++;
 		next;
 	    }
 
-	    if (defined $ref->{$repnames->[$j]}) {
-		$ref = $ref->{$repnames->[$j]};
+	    if (defined $ref->{$keys->[$j]}) {
+		$ref = $ref->{$keys->[$j]};
 		$j++;
 	    }
 	    else {
@@ -173,12 +173,12 @@ sub Add {
 	my $result = $this->{juman}->analysis($string);
 
 	for my $mrph ($result->mrph) {
-	    my $repname = $this->GetRepname($mrph);
+	    my $string = $this->{opt}{userepname} ? $this->GetRepname($mrph) : $mrph->midasi;
 
-	    next if $this->SkipMrph($repname);
+	    next if $this->SkipMrph($string);
 
-	    $ref->{$repname} ||= {};
-	    $ref = $ref->{$repname};
+	    $ref->{$string} ||= {};
+	    $ref = $ref->{$string};
 	}
 	$ref->{''} = defined $id ? $id : 1; # { '' => 1 } as terminator
     }
@@ -189,13 +189,13 @@ sub Add {
 
 # Trie構築時、解析時ともにスキップする形態素をチェック
 sub SkipMrph {
-    my ($this, $repname, $mrph) = @_;
+    my ($this, $string, $mrph) = @_;
 
     if (defined $mrph) {
 	return 1 if $mrph->genkei eq 'する';
 	return 1 if $mrph->bunrui eq '記号';
     }
-    return 1 if $repname eq '　/　';
+    return 1 if $string eq '　' || $string eq '　/　';
 }
 
 sub MakeDB {
