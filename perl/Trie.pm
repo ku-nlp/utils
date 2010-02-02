@@ -81,7 +81,7 @@ sub DetectString {
 	    }
 
 	    # 先頭はskipしない
-	    if ($i != $j && $this->SkipMrph($keys->[$j], $mrphs->[$j])) {
+	    if (!$this->{opt}{noskip} && $i != $j && $this->SkipMrph($keys->[$j], $mrphs->[$j])) {
 		$j++;
 		next;
 	    }
