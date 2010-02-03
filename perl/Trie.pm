@@ -6,9 +6,7 @@ use utf8;
 use strict;
 use Encode;
 use URI::Escape qw/uri_escape_utf8/;
-use Regexp::Trie;
 use Unicode::Japanese;
-use JICFS;
 use BerkeleyDB;
 use Storable;
 use MLDBM qw(BerkeleyDB::Hash Storable);
@@ -18,8 +16,6 @@ sub new {
     my ($this, $opt) = @_;
 
     $this = {
-	trie => Regexp::Trie->new,
-	jicfs => new JICFS,
 	opt => $opt
     };
 
@@ -27,6 +23,11 @@ sub new {
     if ($opt->{usejuman}) {
 	require Juman;
 	$this->{juman} = new Juman;
+	$this->{trie} = {};
+    }
+    else {
+	require Regexp::Trie;
+	$this->{trie} = Regexp::Trie->new;
     }
 
     if (-e $Constant::JanListDB) {
@@ -171,6 +172,11 @@ sub Add {
     return if $string =~ /^\d+$/;
 
     if ($this->{opt}{usejuman}) {
+
+	if (!defined $this->{jicfs}) {
+	    require JICFS;
+	    $this->{jicfs} = new JICFS;
+	}
 	$string = $this->{jicfs}->ArrangeSentence($string);
 	my $ref  = $this->{trie};
 	my $result = $this->{juman}->analysis($string);
