@@ -220,6 +220,8 @@ sub RetrieveDB {
     my ($this, $dbname) = @_;
 
     $this->{opt}{retrievedb} = 1;
+
+    die "Can't find db ($dbname)\n" unless -e $dbname;
     my $db = tie %{$this->{trie}}, 'MLDBM', -Filename => $dbname or die "Cannot tie '$dbname'";
 
     $this->DBFilter($db);
