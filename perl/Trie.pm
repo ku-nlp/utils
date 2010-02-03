@@ -151,6 +151,9 @@ sub DetectString {
 	    }
 	}
     }
+
+    $outputtext .= "EOS\n" if defined $option->{output_juman};
+ 
     return $outputtext;
 }
 
