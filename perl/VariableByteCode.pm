@@ -24,7 +24,7 @@ sub encode {
 
     $bytes[0] += 128;
 
-    for (my $i = 0; $i < scalar(@bytes); $i++) { 
+    for (my $i = 0; $i < scalar(@bytes); $i++) {
 	$bytes[$i] = chr ($bytes[$i]);
     }
 
@@ -34,21 +34,16 @@ sub encode {
 sub decode {
     my ($bytes) = @_;
 
-    my $num;
+    my $n;
     my @rets;
     foreach my $byte (@$bytes) {
-	my $buf = $byte;
-	if ($buf & 128) {
-	    push (@rets, $num) if (defined $num);
-	    $num = 0;
-	}
-
-	$num = $num << 7;
-	for (my $mask = 64; $mask > 0; $mask = $mask >> 1) {
-	    $num += $mask if ($mask & $buf);
+	if ($byte & 128) {
+	    push (@rets, 128 * $n + ($byte - 128));
+	    $n = 0;
+	} else {
+	    $n = 128 * $n + $byte;
 	}
     }
-    push (@rets, $num) if (defined $num);
 
     return \@rets;
 }
