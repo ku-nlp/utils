@@ -13,19 +13,15 @@ sub encode {
     my ($int) = @_;
 
     my @bytes;
-    while ($int > 0) {
-	my $byte = 0;
-	for (my $mask = 64; $mask > 0; $mask = $mask >> 1) {
-	    $byte += $mask if ($mask & $int);
-	}
-	unshift (@bytes, $byte);
-	$int = $int >> 7;
+    while (1) {
+	unshift (@bytes, ($int % 128));
+	last if ($int < 128);
+	$int = int($int/128);
     }
-
-    $bytes[0] += 128;
+    $bytes[-1] += 128;
 
     for (my $i = 0; $i < scalar(@bytes); $i++) {
-	$bytes[$i] = chr ($bytes[$i]);
+	$bytes[$i] = pack('C', $bytes[$i]);
     }
 
     return \@bytes;
