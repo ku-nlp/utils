@@ -103,8 +103,6 @@ sub DetectString {
 	    }
 
 	    if (defined $option->{html}) {
-		my $token = $this->{opt}{token};
-
 		my $jan_name = decode('utf8', $this->{JanListDB}{$match_id});
 
 		# $product_name_for_slip_kanjiが正式名称
