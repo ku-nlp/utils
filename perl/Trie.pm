@@ -5,7 +5,6 @@ package Trie;
 use utf8;
 use strict;
 use Encode;
-use Unicode::Japanese;
 use BerkeleyDB;
 use Storable;
 use MLDBM qw(BerkeleyDB::Hash Storable);
