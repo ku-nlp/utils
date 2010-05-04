@@ -5,7 +5,6 @@ package Trie;
 use utf8;
 use strict;
 use Encode;
-use URI::Escape qw/uri_escape_utf8/;
 use Unicode::Japanese;
 use BerkeleyDB;
 use Storable;
@@ -30,10 +29,6 @@ sub new {
 	$this->{trie} = Regexp::Trie->new;
     }
 
-    if (-e $Constant::JanListDB) {
-	tie(%{$this->{JanListDB}}, 'CDB_File', $Constant::JanListDB) or die "$!\n";
-    }
-
     bless $this;
 
     return $this;
@@ -45,8 +40,6 @@ sub DESTROY {
     if ($this->{opt}{retrievedb}) {
 	untie %{$this->{trie}};
     }
-
-    untie %{$this->{JanListDB}} if defined $this->{JanListDB};
 }
 
 # テキスト中から文字列をみつける
@@ -102,15 +95,8 @@ sub DetectString {
 		$string .= $mrphs->[$k]->midasi;
 	    }
 
-	    if (defined $option->{html}) {
-		my $jan_name = decode('utf8', $this->{JanListDB}{$match_id});
-
-		# $product_name_for_slip_kanjiが正式名称
-		my ($product_name_kanji, $product_name_for_slip_kanji) = split(':', $jan_name);
-
-		my $product_name_kanji_utf8 = uri_escape_utf8($product_name_kanji);
-		$outputtext .=  qq(<a onMouseOver=\"return overlib('$match_id/$product_name_kanji/$product_name_for_slip_kanji')\" onMouseOut=\"return nd()\" href=\"JavaScript:mashup080709_function('$product_name_kanji_utf8')\");
-		$outputtext .= qq(\">);
+	    if (defined $option->{embed_tag}) {
+		$outputtext .= qq(<span id="$match_id">);
 	    }
 	    elsif (defined $option->{output_juman}) {
 		my $add_imis = "WP上位語:$match_id:$i-$end_j";
@@ -130,7 +116,7 @@ sub DetectString {
 	    }
 	    unless (defined $option->{output_juman}) {
 		$outputtext .= $string;
-		$outputtext .= defined $option->{html} ? '</a>' : '」';
+		$outputtext .= defined $option->{embed_tag} ? '</span>' : '」';
 	    }
 
 	    # 最後にマッチしたところまで進める
