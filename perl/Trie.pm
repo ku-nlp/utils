@@ -157,11 +157,6 @@ sub Add {
 
     if ($this->{opt}{usejuman}) {
 
-	if (!defined $this->{jicfs}) {
-	    require JICFS;
-	    $this->{jicfs} = new JICFS;
-	}
-	$string = $this->{jicfs}->ArrangeSentence($string);
 	my $ref  = $this->{trie};
 	my $result = $this->{juman}->analysis($string);
 
