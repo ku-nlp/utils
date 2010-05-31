@@ -98,7 +98,7 @@ sub DetectString {
 		$outputtext .= qq(<span id="$match_id">);
 	    }
 	    elsif (defined $option->{output_juman}) {
-		my $add_imis = "WP上位語:$match_id:$i-$end_j";
+		my $add_imis = "$match_id:$i-$end_j";
 		$mrphs->[$i]->push_imis($add_imis);
 		for my $doukei ($mrphs->[$i]->doukei) {
 		    $doukei->push_imis($add_imis);
