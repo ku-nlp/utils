@@ -23,15 +23,17 @@ sub new {
 
     my ($file0) = ($keymapfile =~ /([^\/]+)\.keymap/);
     $file0 .= '.0';
-    tie my %cdb, 'CDB_File', "$dbdir/$file0" or die "$0: can't tie to $dbdir/$file0 $!\n";
+    my $db_ref = tie my %cdb, 'CDB_File', "$dbdir/$file0" or die "$0: can't tie to $dbdir/$file0 $!\n";
     push(@{$this->{map}}, {key => undef, cdb => \%cdb});
+    $this->{map}[-1]{db_ref} = $db_ref if $opt->{repeated_keys}; # keyが同じで値が異なるものが複数あるオプション
 
     open(READER, '<:utf8', $keymapfile) or die "$!";
     while (<READER>) {
 	chop($_);
 	my ($k, $file) = split(' ', $_);
-	tie my %cdb, 'CDB_File', "$dbdir/$file" or die "$0: can't tie to $dbdir/$file $!\n";
+	my $db_ref = tie my %cdb, 'CDB_File', "$dbdir/$file" or die "$0: can't tie to $dbdir/$file $!\n";
 	push(@{$this->{map}}, {key => $k, cdb => \%cdb});
+	$this->{map}[-1]{db_ref} = $db_ref if $opt->{repeated_keys};
     }
     close(READER);
 
@@ -65,6 +67,8 @@ sub get {
 	return undef;
     } else {
 	my $cdb = $this->{map}[0]{cdb};
+	my $db_ref;
+	$db_ref = $this->{map}[0]{db_ref} if $this->{opt}{repeated_keys};
 	for (my $i = 1; $i < scalar(@{$this->{map}}); $i++) {
 	    my $e = $this->{map}[$i];
 	    my $k = $e->{key};
@@ -78,8 +82,14 @@ sub get {
 	    }
 
 	    $cdb = $e->{cdb};
+	    $db_ref = $e->{db_ref} if $this->{opt}{repeated_keys};
 	}
-	return $cdb->{$searchKey};
+	if ($this->{opt}{repeated_keys}) {
+	    return $db_ref->multi_get($searchKey);
+	}
+	else {
+	    return $cdb->{$searchKey};
+	}
     }
 }
 
