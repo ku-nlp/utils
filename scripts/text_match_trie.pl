@@ -11,7 +11,7 @@ use Trie;
 use Getopt::Long;
 
 my (%opt);
-GetOptions(\%opt, 'dbname=s', 'usejuman', 'userepname', 'noskip');
+GetOptions(\%opt, 'dbname=s', 'usejuman', 'userepname', 'skip');
 
 unless ($opt{dbname}) {
     print STDERR "Please specify dbname!!\n";

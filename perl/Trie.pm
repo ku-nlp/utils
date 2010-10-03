@@ -74,7 +74,7 @@ sub DetectString {
 	    }
 
 	    # 先頭はskipしない
-	    if (!$this->{opt}{noskip} && $i != $j && $this->SkipMrph($keys->[$j], $mrphs->[$j])) {
+	    if ($this->{opt}{skip} && $i != $j && $this->SkipMrph($keys->[$j], $mrphs->[$j])) {
 		$j++;
 		next;
 	    }
@@ -120,6 +120,10 @@ sub DetectString {
 
 	    # 最後にマッチしたところまで進める
 	    $i = $end_j;
+
+	    if ($option->{detected_strings}) {
+		push @{$option->{detected_strings}}, $string;
+	    }
 	}
 	# マッチしなかった
 	else {
