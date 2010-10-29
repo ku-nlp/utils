@@ -166,7 +166,7 @@ sub Add {
 	for my $mrph ($result->mrph) {
 	    my $string = $this->{opt}{userepname} ? $this->GetRepname($mrph) : $mrph->midasi;
 
-	    next if $this->SkipMrph($string);
+	    next if $this->{opt}{skip} && $this->SkipMrph($string);
 
 	    $ref->{$string} ||= {};
 	    $ref = $ref->{$string};
@@ -193,7 +193,7 @@ sub MakeDB {
     my ($this, $dbname) = @_;
 
     my %hash;
-    my $db = tie %hash, 'MLDBM', -Filename => $dbname, -Flags => DB_CREATE or die "Cannot tie '$dbname'";
+    my $db = tie %hash, 'MLDBM', -Filename => $dbname, -Flags => DB_CREATE | DB_TRUNCATE or die "Cannot tie '$dbname'";
 
     $this->DBFilter($db);
 
