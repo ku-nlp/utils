@@ -11,7 +11,7 @@ use Trie;
 use Getopt::Long;
 
 my (%opt);
-GetOptions(\%opt, 'dbname=s', 'usejuman', 'userepname', 'skip');
+GetOptions(\%opt, 'dbname=s', 'usejuman', 'userepname', 'skip', 'add_end_pos');
 
 unless ($opt{dbname}) {
     print STDERR "Please specify dbname!!\n";
@@ -20,6 +20,9 @@ unless ($opt{dbname}) {
 
 my $trie = new Trie(\%opt);
 $trie->RetrieveDB($opt{dbname});
+
+my $detect_string_option = { output_juman => 1 };
+$detect_string_option->{add_end_pos} = 1 if $opt{add_end_pos}; # マッチした形態素の一番後ろに情報を付与するオプション
 
 my $buf;
 while (<>) {
@@ -33,7 +36,7 @@ while (<>) {
     if (/EOS/) {
 	my $result = new Juman::Result($buf);
 	my @mrphs = $result->mrph;
-	print $trie->DetectString(\@mrphs, undef, { output_juman => 1 });
+	print $trie->DetectString(\@mrphs, undef, $detect_string_option);
 	undef $buf; 
     }
 }

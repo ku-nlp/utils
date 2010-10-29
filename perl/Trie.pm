@@ -99,8 +99,11 @@ sub DetectString {
 	    }
 	    elsif (defined $option->{output_juman}) {
 		my $add_imis = "$match_id:$i-$end_j";
-		$mrphs->[$i]->push_imis($add_imis);
-		for my $doukei ($mrphs->[$i]->doukei) {
+
+		# 情報を付与する位置
+		my $add_imis_pos = $option->{add_end_pos} ? $end_j : $i;
+		$mrphs->[$add_imis_pos]->push_imis($add_imis);
+		for my $doukei ($mrphs->[$add_imis_pos]->doukei) {
 		    $doukei->push_imis($add_imis);
 		}
 		for my $k ( $i .. $end_j) {
