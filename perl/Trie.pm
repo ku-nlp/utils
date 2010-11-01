@@ -66,9 +66,18 @@ sub DetectString {
 		$match_flag = 1;
 		$match_id = $ref->{''};
 		$end_j = $j - 1;
-		
+
+		# $retに登録されているエントリ数のカウント
+		# 1 ... エントリ数 1
+		# 2 ... エントリ数 2 以上
+		my $_cnt = 0;
+		while (my ($_k, $_v) = each %$ref) {
+		    last if ($_cnt > 1);
+		    $_cnt++;
+		}
+
 		# 唯一のterminator
-		if (scalar keys %$ref == 1) {
+		if ($_cnt == 1) {
 		    last;
 		}
 	    }
