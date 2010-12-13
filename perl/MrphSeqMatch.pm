@@ -204,7 +204,7 @@ sub AddTagFeatureFromMnum {
     }
 }
 
-# 文節のfeatureに追加
+# 形態素のfeatureに追加
 sub AddMrphFeatureFromMnum {
     my($this, $result, $mark_start, $mark_end, $feature_lst) = @_;
     my ($i, $pre_tnum);
