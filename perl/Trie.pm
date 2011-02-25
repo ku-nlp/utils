@@ -171,24 +171,30 @@ sub Add {
     return if $string =~ /^\d+$/;
 
     if ($this->{opt}{usejuman}) {
-
-	my $ref  = $this->{trie};
-	my $result = $this->{juman}->analysis($string);
-
-	for my $mrph ($result->mrph) {
-	    my $string = $this->{opt}{userepname} ? $this->GetRepname($mrph) : $mrph->midasi;
-
-	    next if $this->{opt}{skip} && $this->SkipMrph($string);
-
-	    $ref->{$string} ||= {};
-	    $ref = $ref->{$string};
-	}
-	$ref->{''} = defined $id ? $id : 1; # { '' => 1 } as terminator
+	my @mrphs = $this->{juman}->analysis($string)->mrph;
+	$this->AddMorphList(\@mrphs, $id);
     }
     else {
 	$this->{trie}->add($string);
     }
 }
+
+# 形態素列を trie 構造に追加
+sub AddMorphList {
+    my ($this, $mrphs, $id) = @_;
+
+    my $ref  = $this->{trie};
+    for my $mrph (@$mrphs) {
+	my $string = $this->{opt}{userepname} ? $this->GetRepname($mrph) : $mrph->midasi;
+
+	next if $this->{opt}{skip} && $this->SkipMrph($string);
+
+	$ref->{$string} ||= {};
+	$ref = $ref->{$string};
+    }
+    $ref->{''} = defined $id ? $id : 1; # { '' => 1 } as terminator
+}
+
 
 # Trie構築時、解析時ともにスキップする形態素をチェック
 sub SkipMrph {
