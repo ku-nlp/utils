@@ -21,12 +21,8 @@ sub new {
     if ($opt->{usejuman}) {
 	require Juman;
 	$this->{juman} = new Juman;
-	$this->{trie} = {};
     }
-    else {
-	require Regexp::Trie;
-	$this->{trie} = Regexp::Trie->new;
-    }
+    $this->{trie} = {};
 
     bless $this;
 
@@ -170,12 +166,13 @@ sub Add {
     # 数字だけ
     return if $string =~ /^\d+$/;
 
+    my $ref  = $this->{trie};
     if ($this->{opt}{usejuman}) {
 	my @mrphs = $this->{juman}->analysis($string)->mrph;
 	$this->AddMorphList(\@mrphs, $id);
     }
     else {
-	$this->{trie}->add($string);
+	$this->AddString($string);
     }
 }
 
@@ -195,6 +192,16 @@ sub AddMorphList {
     $ref->{''} = defined $id ? $id : 1; # { '' => 1 } as terminator
 }
 
+sub AddString {
+    my ($this, $string, $id) = @_;
+
+    my $ref  = $this->{trie};
+    for my $char (split //, $string) {
+	$ref->{$char} ||= {};
+	$ref = $ref->{$char};
+    }
+    $ref->{''} = defined $id ? $id : 1; # { '' => 1 } as terminator
+}
 
 # Trie構築時、解析時ともにスキップする形態素をチェック
 sub SkipMrph {
@@ -254,13 +261,6 @@ sub GetRepname {
     else {
 	return $mrph->genkei . '/' . $mrph->yomi;
     }
-}
-
-# 正規表現をはく
-sub Regexp {
-    my ($this) = @_;
-
-    return $this->{trie}->regexp;
 }
 
 1;
