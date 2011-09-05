@@ -281,7 +281,7 @@ sub read_rule {
     my ($rule_file) = @_;
 
     my @rules;
-    open(RULE, "<:encoding(euc-jp)", $rule_file) || die;
+    open(RULE, "<:encoding(utf-8)", $rule_file) || die;
     my $rule_num = 0;
 
     while ( <RULE> ) {
