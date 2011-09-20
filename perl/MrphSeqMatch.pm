@@ -82,10 +82,10 @@ sub MrphSeqMatch {
 		    $this->AddMrphFeatureFromMnum($result, $j + $split_num + $rule->{mark_start}, $j + $split_num + $rule->{mark_end}, \@{$rule->{feature}});
 		}
 		elsif (defined $rule->{tag}) {
-		    $this->AddTagFeatureFromMnum($result, $j + $split_num + $rule->{mark_start}, $j + $split_num + $rule->{mark_end}, \@{$rule->{feature}});
+		    $this->AddTagFeatureFromMnum($result, $j + $split_num + $rule->{mark_start}, $j + $split_num + $rule->{mark_end}, \@{$rule->{feature}}, $m2t);
 		}
 		else {
-		    $this->AddBnstFeatureFromMnum($result, $j + $split_num + $rule->{mark_start}, $j + $split_num + $rule->{mark_end}, \@{$rule->{feature}});
+		    $this->AddBnstFeatureFromMnum($result, $j + $split_num + $rule->{mark_start}, $j + $split_num + $rule->{mark_end}, \@{$rule->{feature}}, $m2b);
 		}
 	    }
 	}
@@ -178,28 +178,28 @@ sub CheckPatternTag {
 
 # 文節のfeatureに追加
 sub AddBnstFeatureFromMnum {
-    my($this,$result, $mark_start, $mark_end, $feature_lst) = @_;
+    my($this,$result, $mark_start, $mark_end, $feature_lst, $m2b) = @_;
     my ($i, $pre_bnum);
 
     $pre_bnum = -1;
     for ($i = $mark_start; $i <= $mark_end; $i++) {
-	if ($pre_bnum != $this->{m2b}[$i]) {
-	    ($result->bnst)[$this->{m2b}[$i]]->push_feature(@{$feature_lst});
-	    $pre_bnum = $this->{m2b}[$i];
+	if ($pre_bnum != $m2b->[$i]) {
+	    ($result->bnst)[$m2b->[$i]]->push_feature(@{$feature_lst});
+	    $pre_bnum = $m2b->[$i];
 	}
     }
 }
 
 # Tagのfeatureに追加
 sub AddTagFeatureFromMnum {
-    my($this,$result, $mark_start, $mark_end, $feature_lst) = @_;
+    my($this,$result, $mark_start, $mark_end, $feature_lst, $m2t) = @_;
     my ($i, $pre_tnum);
 
     $pre_tnum = -1;
     for ($i = $mark_start; $i <= $mark_end; $i++) {
-	if ($pre_tnum != $this->{m2t}[$i]) {
-	    ($result->tag)[$this->{m2t}[$i]]->push_feature(@{$feature_lst});
-	    $pre_tnum = $this->{m2t}[$i];
+	if ($pre_tnum != $m2t->[$i]) {
+	    ($result->tag)[$m2t->[$i]]->push_feature(@{$feature_lst});
+	    $pre_tnum = $m2t->[$i];
 	}
     }
 }
