@@ -2,14 +2,16 @@
 
 # $Id$
 
-# usage: perl -I../perl test-mrphseqmatch.pl -rule_file /somewhere/rule.txt (¥Þ¥Ã¥Á¤µ¤»¤¿¤¤Ê¸)
+# usage: perl -I../perl test-mrphseqmatch.pl -rule_file /somewhere/rule.txt (ãƒžãƒƒãƒã•ã›ãŸã„æ–‡)
 
-# rule¥Õ¥¡¥¤¥ë¤Î½ñ¼°¤Ïperl/MrphSeqMatch.pm¤Î´Ø¿ôread_rule¤ÎÄ¾Á°¤ò»²¾È
+# ruleãƒ•ã‚¡ã‚¤ãƒ«ã®æ›¸å¼ã¯perl/MrphSeqMatch.pmã®é–¢æ•°read_ruleã®ç›´å‰ã‚’å‚ç…§
 
 use strict;
-use encoding 'euc-jp';
-binmode STDERR, ':encoding(euc-jp)';
-binmode DB::OUT, ':encoding(euc-jp)';
+use utf8;
+binmode STDIN, ':encoding(utf8)';
+binmode STDOUT, ':encoding(utf8)';
+binmode STDERR, ':encoding(utf8)';
+binmode DB::OUT, ':encoding(utf8)';
 use Encode;
 use Getopt::Long;
 use KNP;
@@ -18,7 +20,7 @@ use MrphSeqMatch;
 my (%opt);
 GetOptions(\%opt, 'rule_file=s', 'debug', 'help');
 
-my $sentence = decode('euc-jp', $ARGV[0]);
+my $sentence = decode('utf-8', $ARGV[0]);
 
 my $mrphseqmatch = new MrphSeqMatch($opt{rule_file}, \%opt);
 my $knp = new KNP(-Option => '-tab -dpnd');
