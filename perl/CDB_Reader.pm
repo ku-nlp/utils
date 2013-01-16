@@ -29,8 +29,9 @@ sub new {
 
     open(READER, '<:utf8', $keymapfile) or die "$!";
     while (<READER>) {
-	chop($_);
-	my ($k, $file) = split(' ', $_);
+	chomp($_);
+	/^(.+) ([^ ]+)$/ or die "malformed keymap";
+	my ($k, $file) = ($1, $2);
 	my $db_ref = tie my %cdb, 'CDB_File', "$dbdir/$file" or die "$0: can't tie to $dbdir/$file $!\n";
 	push(@{$this->{map}}, {key => $k, cdb => \%cdb});
 	$this->{map}[-1]{db_ref} = $db_ref if $opt->{repeated_keys};
