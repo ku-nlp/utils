@@ -6,8 +6,10 @@ package MrphSeqMatch;
 
 use utf8;
 use strict;
+use Juman;
+use KNP;
 
-our %CHARTYPE = ('ひらがな' => 'InHiragana', 'カタカナ' => 'InKatakana', '漢字' => 'Han');
+our %CHARTYPE = ('ひらがな' => 'InHiragana', 'カタカナ' => 'InKatakana', '漢字' => 'Han', '英数字' => 'Latin');
 
 sub new {
     my ($this, $rule_file, $opt) = @_;
@@ -74,7 +76,7 @@ sub MrphSeqMatch {
 	    if ($flag && $flag_s
 		&& ((defined $rule->{whole_match} && $j + $pattern_num == $mrph_num) || !defined $rule->{whole_match})) {
 
-		if (defined $rule->{whole_match}) {
+		if (defined $rule->{whole_match} || defined $rule->{no_add_feature}) {
 		    return 1;
 		}
 
@@ -82,7 +84,7 @@ sub MrphSeqMatch {
 		    $this->AddMrphFeatureFromMnum($result, $j + $split_num + $rule->{mark_start}, $j + $split_num + $rule->{mark_end}, \@{$rule->{feature}});
 		}
 		elsif (defined $rule->{tag}) {
-		    $this->AddTagFeatureFromMnum($result, $j + $split_num + $rule->{mark_start}, $j + $split_num + $rule->{mark_end}, \@{$rule->{feature}}, $m2t);
+		    $this->AddTagFeatureFromMnum($result, $j + $split_num + $rule->{mark_start}, $j + $split_num + $rule->{mark_end}, \@{$rule->{feature}}, $m2t, defined $rule->{last} ? 1 : 0);
 		}
 		else {
 		    $this->AddBnstFeatureFromMnum($result, $j + $split_num + $rule->{mark_start}, $j + $split_num + $rule->{mark_end}, \@{$rule->{feature}}, $m2b);
@@ -147,6 +149,10 @@ sub CheckPatternTag {
 	my $pat_content = $1;
 	return 1 if ($result->mrph)[$m_num]->midasi =~ /^\p{$CHARTYPE{$pat_content}}+$/;
     }
+    elsif ($pat =~ /^\<長さ:(.+)\>/) {
+	my $pat_content = $1;
+	return 1 if length(($result->mrph)[$m_num]->midasi) eq $1;
+    }
     elsif ($pat =~ /^\<F:(.+)\>/) {
 	my $fpat = "<$1";
 	return 1 if ($result->bnst)[$m2b->[$m_num]]->fstring =~ /$fpat(\:|\>)/;
@@ -192,11 +198,12 @@ sub AddBnstFeatureFromMnum {
 
 # Tagのfeatureに追加
 sub AddTagFeatureFromMnum {
-    my($this,$result, $mark_start, $mark_end, $feature_lst, $m2t) = @_;
+    my($this,$result, $mark_start, $mark_end, $feature_lst, $m2t, $last) = @_;
     my ($i, $pre_tnum);
 
     $pre_tnum = -1;
     for ($i = $mark_start; $i <= $mark_end; $i++) {
+	next if $last && $i ne $mark_end;
 	if ($pre_tnum != $m2t->[$i]) {
 	    ($result->tag)[$m2t->[$i]]->push_feature(@{$feature_lst});
 	    $pre_tnum = $m2t->[$i];
@@ -292,12 +299,21 @@ sub read_rule {
 	my ($pattern, $feature);
 	if ($line =~ / \-\> /) {
 	    ($pattern, $feature) = split(/ \-\> /, $line);
-	    @{$rules[$rule_num]{feature}} = split(/ /, $feature);
-	    if ($feature =~ s/^T://) {
-		$rules[$rule_num]{tag} = 1;
+
+	    if ($feature eq 'NIL') {
+		$rules[$rule_num]{no_add_feature} = 1; 
 	    }
 	    else {
-		$rules[$rule_num]{mrph} = 1;
+		if ($feature =~ s/^T://) {
+		    $rules[$rule_num]{tag} = 1;
+		}
+		else {
+		    $rules[$rule_num]{mrph} = 1;
+		}
+		if ($feature =~ s/\@L$//) {
+		    $rules[$rule_num]{last} = 1;
+		}
+		@{$rules[$rule_num]{feature}} = split(/ /, $feature);
 	    }
 	}
 	else {
