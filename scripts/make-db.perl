@@ -27,7 +27,7 @@ while (<STDIN>) {
 	($k, $v) = split;
     }
     else {
-	($k, $v) = split(' ', $_);
+	($k, $v) = split(' ', $_, 2);
     }
     $cdb->add($k, $v);
 }
