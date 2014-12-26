@@ -1,15 +1,14 @@
 #!/usr/bin/env perl
 
-# $Id$
-
 # test script for CompoundNounExtractor
 
-# echo '¼«Á³¸À¸ì½èÍı¤ò¸¦µæ¤¹¤ë¡£' | juman | knp -tab -dpnd | perl -I../perl test-CompoundNounExtractor.pl
+# echo 'è‡ªç„¶è¨€èªå‡¦ç†ã‚’ç ”ç©¶ã™ã‚‹ã€‚' | juman | knp -tab -dpnd | perl -I../perl test-CompoundNounExtractor.pl
 
 use strict;
-use encoding 'euc-jp';
-binmode STDERR, ':encoding(euc-jp)';
-
+use utf8;
+binmode STDIN, ':encoding(utf-8)';
+binmode STDOUT, ':encoding(utf-8)';
+binmode STDERR, ':encoding(utf-8)';
 use KNP;
 use CompoundNounExtractor;
 use Getopt::Long;
@@ -41,13 +40,13 @@ while (<>) {
     if (/^EOS$/) {
 	my $result = new KNP::Result($buf);
 
-	# ¸¶Ê¸
+	# åŸæ–‡
 	foreach my $mrph ($result->mrph) {
 	    print $mrph->midasi;
 	}
 	print "\n";
 
-	# ¥¯¥é¥¹¥¿¥ê¥ó¥°ÍÑ
+	# ã‚¯ãƒ©ã‚¹ã‚¿ãƒªãƒ³ã‚°ç”¨
 	if ($opt{array_input}) {
 	    my @bnsts = $result->bnst;
 
@@ -58,14 +57,14 @@ while (<>) {
 	    foreach my $tmp (@words) {
 		print "midasi:$tmp->{midasi} repname:$tmp->{repname}";
 		print " verbose:$tmp->{verbose}" if $opt{get_verbose};
-		print " longest¡ú" if defined $tmp->{longest_flag};
+		print " longestâ˜…" if defined $tmp->{longest_flag};
 		print "\n\n";
 	    }
 	}
 	else {
 
 	    foreach my $bnst ($result->bnst) {
-		print STDERR '¡ú bid:', $bnst->id, "\n";
+		print STDERR 'â˜… bid:', $bnst->id, "\n";
 		if ($opt{longest}) {
 
 		    my $word = $cne->ExtractCompoundNounfromBnst($bnst, { longest => 1 });
@@ -80,7 +79,7 @@ while (<>) {
 		    foreach my $tmp (@words) {
 			print "midasi:$tmp->{midasi} repname:$tmp->{repname}";
 			print " verbose:$tmp->{verbose}" if $opt{get_verbose};
-			# ³«»Ï¡¦½ªÎ»·ÁÂÖÁÇ°ÌÃÖ
+			# é–‹å§‹ãƒ»çµ‚äº†å½¢æ…‹ç´ ä½ç½®
 			if ($opt{get_start_end_mrphnum}) {
 			    print " start_mrphnum:$tmp->{start_mrphnum}";
 			    print " end_mrphnum:$tmp->{end_mrphnum}"  
