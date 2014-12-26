@@ -74,8 +74,17 @@ sub ExtractCompoundNounfromBnst {
 
     my @mrph_list;
 
+    my %m2b;
     # bnstの配列が入力された場合
     if (ref($bnst) eq 'ARRAY') {
+	for my $b ( @{$bnst} ) {
+	    my $bid = $b->id;
+	    for my $m ($b->mrph) {
+		my $mid = $m->id;
+		$m2b{$mid} = $bid;
+	    }
+	}
+
 	for my $b ( @{$bnst} ) {
 	    # 形態素列が入力された場合(クラスタリング用)
 	    if (ref($b) eq 'KNP::Morpheme') {
@@ -259,14 +268,14 @@ sub ExtractCompoundNounfromBnst {
 	    $mrph_used_num[$j]++;
 
 	    if (! $option->{'subject'}) {
-		push @word_list, { midasi => $midasi, repname => $repname, mrphnum => $mrphnum , jiritsu_mrph_num => $jiritsu_mrph_num};
+		push @word_list, { midasi => $midasi, repname => $repname, mrphnum => $mrphnum , jiritsu_mrph_num => $jiritsu_mrph_num, mrphid => $i, bnstid => $m2b{$i}};
 	    }
 	    # $option->{'subject'} が指定された場合は文中の主題をチェックする
 	    else {
 		if ($flag[$i]) {
-		    push @word_list, { midasi => $midasi, repname => $repname, mrphnum => $mrphnum , jiritsu_mrph_num => $jiritsu_mrph_num, 'subject' => 1}; # subject = 1 の複合名詞は文中で主題として出現
+		    push @word_list, { midasi => $midasi, repname => $repname, mrphnum => $mrphnum , jiritsu_mrph_num => $jiritsu_mrph_num, 'subject' => 1, mrphid => $i, bnstid => $m2b{$i}}; # subject = 1 の複合名詞は文中で主題として出現
 		} else {
-		    push @word_list, { midasi => $midasi, repname => $repname, mrphnum => $mrphnum , jiritsu_mrph_num => $jiritsu_mrph_num, 'subject' => 0};
+		    push @word_list, { midasi => $midasi, repname => $repname, mrphnum => $mrphnum , jiritsu_mrph_num => $jiritsu_mrph_num, 'subject' => 0, mrphid => $i, bnstid => $m2b{$i}};
 		}
 	    }
 
