@@ -16,19 +16,20 @@ def CheckConditionHead(midasi,fstring,hinsi):
     else:
         return False
     
-def CheckConditionTail(midasi,fstring,bunrui,hinsi):
+def CheckConditionTail(midasi,fstring,bunrui,hinsi) :
     fstr_flag0 =  any(fstr in fstring for fstr in (u'名詞相当語',u'かな漢字',u'カタカナ'))
     if fstr_flag0:
-        hiragana = (u'あ' <= midasi <= u'ん')
+        hiragana_flag = (u'あ' <= midasi <= u'ん')
         bunrui_flag = any(bnr in bunrui for bnr in (u'副詞的名詞',u'形式名詞'))
         fstr_flag1 = any(fstr in fstring for fstr in (u'記号',u'数字'))
         fstr_flag2 = (u'非独立タグ接尾辞' in fstring) and not (u'意味有' in fstring)
-        return (not hiragana) and (not bunrui_flag) and (not fstr_flag1) and (not fstr_flag2)
+        hinsi_flag = (hinsi == u'接頭辞')
+        return (not hiragana_flag) and (not bunrui_flag) and (not fstr_flag1) and (not fstr_flag2) and (not hinsi_flag)
     else:
         return False
     
-def ExtractCompoundNounfromBnst(bnst):
-    num_of_mrph = len(bnst.mrph_list())
+def ExtractCompoundNounfromBnst(bnst, longest = False ) :
+    num_of_mrph = len( bnst.mrph_list() )
     is_ok_for_mid = []
     is_ok_for_head = []
     is_ok_for_tail = []
@@ -52,7 +53,15 @@ def ExtractCompoundNounfromBnst(bnst):
                 if is_ok_for_head[j][0]:
                     cmp_noun = is_ok_for_head[j][1] + cmp_noun
                     cmp_noun_list.append(cmp_noun)
-                if not is_ok_for_mid[j][0]:
+                if not is_ok_for_mid[j][0] :
                     break
 
+    if longest and not cmp_noun_list == []:
+        max_length = 0
+        longest_noun = u''
+        for noun in cmp_noun_list:
+            if max_length < len(noun):
+                longest_noun = noun
+                max_length = len(noun)
+        cmp_noun_list = [longest_noun]
     return cmp_noun_list
