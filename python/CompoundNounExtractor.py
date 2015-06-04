@@ -12,17 +12,18 @@ def CheckConditionMid(midasi,fstring,bunrui,hinsi):
 def CheckConditionHead(midasi,fstring,hinsi):
     fstr_flag =  any(fstr in fstring for fstr in (u'名詞相当語',u'漢字',u'独立タグ接頭辞'))
     if fstr_flag:
-        return not (hinsi == u'接頭辞')
+        return not (hinsi == u'接尾辞')
     else:
         return False
     
 def CheckConditionTail(midasi,fstring,bunrui,hinsi):
     fstr_flag0 =  any(fstr in fstring for fstr in (u'名詞相当語',u'かな漢字',u'カタカナ'))
     if fstr_flag0:
+        hiragana = (u'あ' <= midasi <= u'ん')
         bunrui_flag = any(bnr in bunrui for bnr in (u'副詞的名詞',u'形式名詞'))
         fstr_flag1 = any(fstr in fstring for fstr in (u'記号',u'数字'))
         fstr_flag2 = (u'非独立タグ接尾辞' in fstring) and not (u'意味有' in fstring)
-        return (not bunrui_flag) and (not fstr_flag1) and (not fstr_flag2)
+        return (not hiragana) and (not bunrui_flag) and (not fstr_flag1) and (not fstr_flag2)
     else:
         return False
     
