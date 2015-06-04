@@ -1,0 +1,41 @@
+# -*-coding: utf-8 -*-
+from pyknp import KNP
+import sys
+import codecs
+
+sys.stdin  = codecs.getreader('UTF-8')(sys.stdin)
+sys.stdout = codecs.getwriter('UTF-8')(sys.stdout)
+sys.stderr = codecs.getwriter('UTF-8')(sys.stderr)
+
+
+def ExtractCompoundNounfromBnst(bnst):
+    for mrph in result.mrph_list():
+        if flag == 1:
+            if not mrph.hinsi == u"名詞":
+                cmp_noun_list.append(cmp_noun)
+                cmp_noun = u""
+                flag = 0
+            else:
+                cmp_noun += mrph.midasi
+            else:
+                if mrph.hinsi == u"名詞":
+                    cmp_noun += mrph.midasi
+                    flag = 1
+
+
+if __name__ == '__main__':
+    knp = KNP()
+    data = u""
+
+    for line in iter(sys.stdin.readline,u""):
+        data += line
+        if line.strip() == u"EOS":
+            result = knp.result(data)
+            flag = 0
+            cmp_noun_list = []
+            cmp_noun = u""
+            for noun in cmp_noun_list:
+                print noun,
+
+
+                
