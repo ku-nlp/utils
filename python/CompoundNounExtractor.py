@@ -6,6 +6,7 @@ import codecs
 from optparse import OptionParser
 
 def CheckConditionMid(midasi,fstring,bunrui,hinsi):
+    """ 真ん中に来れるかどうかをチェック """
     fstr_flag =  any(fstr in fstring for fstr in (u'名詞相当語',u'漢字',u'独立タグ接頭辞',u'複合'))
     if fstr_flag:
         bunrui_flag = any(bnr in bunrui for bnr in (u'副詞的名詞',u'形式名詞'))
@@ -15,13 +16,15 @@ def CheckConditionMid(midasi,fstring,bunrui,hinsi):
         return False
     
 def CheckConditionHead(midasi,fstring,hinsi):
+    """ 先頭に来れるかどうかをチェック """
     fstr_flag =  any(fstr in fstring for fstr in (u'名詞相当語',u'漢字',u'独立タグ接頭辞'))
     if fstr_flag:
         return not (hinsi == u'接尾辞')
     else:
         return False
     
-def CheckConditionTail(midasi,fstring,bunrui,hinsi) :
+def CheckConditionTail(midasi,fstring,bunrui,hinsi):
+    """ 最後に来れるかどうかをチェック """
     fstr_flag0 =  any(fstr in fstring for fstr in (u'名詞相当語',u'かな漢字',u'カタカナ'))
     if fstr_flag0:
         hiragana_flag = (u'あ' <= midasi <= u'ん')
