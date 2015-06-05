@@ -3,6 +3,7 @@
 from pyknp import KNP
 import sys
 import codecs
+from optparse import OptionParser
 
 def CheckConditionMid(midasi,fstring,bunrui,hinsi):
     fstr_flag =  any(fstr in fstring for fstr in (u'名詞相当語',u'漢字',u'独立タグ接頭辞',u'複合'))
@@ -32,7 +33,7 @@ def CheckConditionTail(midasi,fstring,bunrui,hinsi) :
     else:
         return False
     
-def ExtractCompoundNounfromBnst(bnst, longest = False ) :
+def ExtractCompoundNounfromBnst(bnst, longest = False):
     num_of_mrph = len( bnst.mrph_list() )
     is_ok_for_mid = []
     is_ok_for_head = []
@@ -79,6 +80,9 @@ def ExtractCompoundNounfromBnst(bnst, longest = False ) :
             word_list.append({ "midasi":midasi })
             outputted_flag = 1
 
+        if longest:
+            return word_list[-1]
+        
         if len(word_list) > 0:
             ret_word_list.extend(word_list)
             
@@ -89,6 +93,15 @@ if __name__ == "__main__":
     sys.stdout = codecs.getwriter('UTF-8')(sys.stdout)
     sys.stderr = codecs.getwriter('UTF-8')(sys.stderr)
 
+    parser = OptionParser()
+    parser.add_option(
+        '-l', '--longest',
+        action = 'store_true',
+        dest = 'longest'
+        )
+
+    options, args = parser.parse_args()
+    
     knp = KNP()
     data = u""
 
@@ -98,7 +111,13 @@ if __name__ == "__main__":
             result = knp.result(data)
             for bnst in result.bnst_list():
                 print u"★ bid:%s" % bnst.bnst_id
-                words = ExtractCompoundNounfromBnst(bnst)
-                for word in words:
-                    print word["midasi"]
-                print
+                if options.longest:
+                    word = ExtractCompoundNounfromBnst(bnst, longest=1)
+                    if len(word) > 0:
+                        print word["midasi"]
+                    print
+                else:
+                    words = ExtractCompoundNounfromBnst(bnst)
+                    for word in words:
+                        print word["midasi"]
+                    print
