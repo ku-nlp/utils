@@ -3,6 +3,7 @@
 from pyknp import KNP
 import sys
 import codecs
+import re
 from optparse import OptionParser
 
 def CheckConditionMid(midasi,fstring,bunrui,hinsi):
@@ -17,9 +18,10 @@ def CheckConditionMid(midasi,fstring,bunrui,hinsi):
     
 def CheckConditionHead(midasi,fstring,hinsi):
     """ 先頭に来れるかどうかをチェック """
-    fstr_flag =  any(fstr in fstring for fstr in (u'名詞相当語',u'漢字',u'独立タグ接頭辞'))
-    if fstr_flag:
-        return not (hinsi == u'接尾辞')
+    
+    # "接尾辞"の条件は「-性海棉状脳症」などを除くため
+    if (re.search(ur"<(?:名詞相当語|漢字)>", fstring) or hinsi != u"接頭辞") and hinsi != u"接尾辞":
+        return True
     else:
         return False
     
