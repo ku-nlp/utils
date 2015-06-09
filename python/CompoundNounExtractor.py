@@ -8,35 +8,39 @@ from optparse import OptionParser
 
 def CheckConditionMid(midasi,fstring,bunrui,hinsi):
     """ 真ん中に来れるかどうかをチェック """
-    fstr_flag =  any(fstr in fstring for fstr in (u'名詞相当語',u'漢字',u'独立タグ接頭辞',u'複合'))
-    if fstr_flag:
-        bunrui_flag = any(bnr in bunrui for bnr in (u'副詞的名詞',u'形式名詞'))
-        fstr_num_flag = (u'記号' in fstring)
-        return (not bunrui_flag) and (not fstr_num_flag)
-    else:
+
+    if re.search(ur"<(?:名詞相当語|漢字|複合←)>", fstring) is None and hinsi != u"接頭辞" or \
+        re.search(ur"<記号>", fstring) or \
+        re.search(ur"(?:副詞的|形式)名詞", bunrui):
         return False
+    else:
+        return True
     
 def CheckConditionHead(midasi,fstring,hinsi):
     """ 先頭に来れるかどうかをチェック """
     
     # "接尾辞"の条件は「-性海棉状脳症」などを除くため
-    if (re.search(ur"<(?:名詞相当語|漢字)>", fstring) or hinsi != u"接頭辞") and hinsi != u"接尾辞":
+    if (re.search(ur"<(?:名詞相当語|漢字)>", fstring) or hinsi == u"接頭辞") and hinsi != u"接尾辞":
         return True
     else:
         return False
     
 def CheckConditionTail(midasi,fstring,bunrui,hinsi):
     """ 最後に来れるかどうかをチェック """
-    fstr_flag0 =  any(fstr in fstring for fstr in (u'名詞相当語',u'かな漢字',u'カタカナ'))
-    if fstr_flag0:
-        hiragana_flag = (u'あ' <= midasi <= u'ん')
-        bunrui_flag = any(bnr in bunrui for bnr in (u'副詞的名詞',u'形式名詞'))
-        fstr_flag1 = any(fstr in fstring for fstr in (u'記号',u'数字'))
-        fstr_flag2 = (u'非独立タグ接尾辞' in fstring) and not (u'意味有' in fstring)
-        hinsi_flag = (hinsi == u'接頭辞')
-        return (not hiragana_flag) and (not bunrui_flag) and (not fstr_flag1) and (not fstr_flag2) and (not hinsi_flag)
-    else:
+    
+    # ひらがな一文字(接尾辞と接頭辞を除く)
+    # 一番最後が名詞でない
+    # 形式名詞（もの, こと..)/副詞的名詞(よう, とき..)
+    # 名詞相当語 かつ 記号 .. ●,《, ＠など
+    # 「イースター島再来訪」から「イースター島再」を排除
+    if ((u'あ' <= midasi <= u'ん') and re.search(ur"(?:接頭辞|接尾辞)", hinsi) is None) or \
+        re.search(ur"<(?:名詞相当語|かな漢字|カタカナ)>", fstring) is None or \
+        re.search(ur"(?:副詞的|形式)名詞", bunrui) or \
+        re.search(ur"<記号>", fstring) or \
+        hinsi == u"接頭辞":
         return False
+    else:
+        return True
     
 def ExtractCompoundNounfromBnst(bnst, longest = False):
     num_of_mrph = len( bnst.mrph_list() )
