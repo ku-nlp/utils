@@ -5,6 +5,7 @@ import sys
 import codecs
 import re
 from optparse import OptionParser
+from argparse import ArgumentParser
 
 def CheckConditionMid(midasi,fstring,bunrui,hinsi):
     """ 真ん中に来れるかどうかをチェック """
@@ -42,7 +43,7 @@ def CheckConditionTail(midasi,fstring,bunrui,hinsi):
     else:
         return True
     
-def ExtractCompoundNounfromBnst(bnst, longest = False):
+def ExtractCompoundNounfromBnst(bnst, longest = False, use_repname = False):
     num_of_mrph = len( bnst.mrph_list() )
     is_ok_for_mid = []
     is_ok_for_head = []
@@ -68,6 +69,7 @@ def ExtractCompoundNounfromBnst(bnst, longest = False):
     for i in xrange(num_of_mrph - 1, -1, -1):
         word_list = []
         midasi = ""
+        repname = ""
         
         if not is_ok_for_tail[i]:
             longest_tail_flag = 0
@@ -82,15 +84,18 @@ def ExtractCompoundNounfromBnst(bnst, longest = False):
 
             midasi_j = bnst.mrph_list()[j].midasi
             midasi = midasi_j + midasi
+            if use_repname:
+                repname_j = bnst.mrph_list()[j].repname
+                repname = repname_j + repname
 
             if not is_ok_for_head[j]:
                 continue
 
-            word_list.append({ "midasi":midasi })
+            word_list.append({ "midasi": midasi, "repname": repname })
             outputted_flag = 1
 
-        if longest:
-            return word_list[-1]
+        if longest and outputted_flag:
+            return [ word_list[-1] ]
         
         if len(word_list) > 0:
             ret_word_list.extend(word_list)
@@ -102,31 +107,49 @@ if __name__ == "__main__":
     sys.stdout = codecs.getwriter('UTF-8')(sys.stdout)
     sys.stderr = codecs.getwriter('UTF-8')(sys.stderr)
 
-    parser = OptionParser()
-    parser.add_option(
+    usage = u'{0} [Args] [Options]\nDetailed options -h or --help'.format(__file__)
+    parser = ArgumentParser( description = usage )
+    parser.add_argument(
         '-l', '--longest',
         action = 'store_true',
-        dest = 'longest'
+        dest = 'longest',
+        help = 'return only the longest compound noun'
+        )
+    parser.add_argument(
+        '-r', '--repname',
+        action = 'store_true',
+        dest = 'repname',
+        help = 'return repname'
         )
 
-    options, args = parser.parse_args()
+    args = parser.parse_args()
+
     
     knp = KNP()
-    data = u""
+    data = ""
 
-    for line in iter(sys.stdin.readline,u""):
+    for line in iter( sys.stdin.readline, ""):
         data += line
         if line.strip() == u"EOS":
             result = knp.result(data)
             for bnst in result.bnst_list():
                 print u"★ bid:%s" % bnst.bnst_id
-                if options.longest:
-                    word = ExtractCompoundNounfromBnst(bnst, longest=1)
+                if args.longest:
+                    word = ExtractCompoundNounfromBnst( bnst, longest = True,\
+                                                        use_repname = args.repname )
                     if len(word) > 0:
-                        print word["midasi"]
+                        if not args.repname:
+                            print word[ "midasi" ]
+                        else:
+                            print word[ "repname" ]
                     print
                 else:
-                    words = ExtractCompoundNounfromBnst(bnst)
-                    for word in words:
-                        print word["midasi"]
+                    words = ExtractCompoundNounfromBnst( bnst,\
+                                                         use_repname = args.repname )
+                    if args.repname == False:
+                        for word in words:
+                            print word[ "midasi" ]
+                    else:
+                        for word in words:
+                            print word[ "repname" ]
                     print
