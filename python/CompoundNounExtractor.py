@@ -1,6 +1,16 @@
 # -*-coding: utf-8 -*-
-# echo "自然言語処理を研究する" | juman | knp -tab -dpnd | python CompoundNounExtractor.py -l
-# ->
+# % echo "自然言語処理を研究する" | juman | knp -tab -dpnd | python CompoundNounExtractor.py -l
+# %
+# ★ bid:0
+# 処理
+# 言語処理
+# 自然言語処理
+# 言語
+# 自然言語
+# 自然
+#
+# ★ bid:1
+# 研究
 
 
 from pyknp import KNP
