@@ -1,21 +1,39 @@
 # -*-coding: utf-8 -*-
-# % echo "自然言語処理を研究する" | juman | knp -tab -dpnd | python CompoundNounExtractor.py -l
+
+# 複合名詞を抽出する
+# ex.)
+# % echo "私は自然言語処理の研究をする" | juman | knp -tab -dpnd | python CompoundNounExtractor.py
 # %
-# ★ bid:0
-# 処理
-# 言語処理
-# 自然言語処理
-# 言語
-# 自然言語
-# 自然
-#
-# ★ bid:1
+# ★ bid0
+# repname:私/わたし
+
+# ★ bid1
+# repname:処理/しょり
+
+# repname:言語/げんご+処理/しょり
+
+# repname:自然/しぜんa+言語/げんご+処理/しょり
+
+# repname:言語/げんご
+
+# repname:自然/しぜんa+言語/げんご
+
+# repname:自然/しぜんa
+
+# ★ bid2
+# repname:研究/けんきゅう
+
+# ★ bid3
+
 # 研究
 
+# モジュールとして
+# ex.)
+# for bnst in bnst_list():
+#     words = CNE.ExtractCompoundNounfromBnst(bnst, longest=True, repname=True)
+#     for word in words:
+#         print word
 
-from pyknp import KNP
-import sys
-import codecs
 import re
 from argparse import ArgumentParser
 
@@ -118,13 +136,12 @@ class CompoundNounExtractor():
 
                 midasi_j = bnst.mrph_list()[j].midasi
                 midasi = midasi_j + midasi
-                if use_repname:
-                    repname_j = bnst.mrph_list()[j].repname
-                    repname = repname_j + repname
+                repname_j = bnst.mrph_list()[j].repname
+                repname = repname_j + "+" + repname
 
                 if not self.is_ok_for_head[j]:
                     continue
-                word_list.append({"midasi": midasi, "repname": repname})
+                word_list.append({"midasi": midasi, "repname": repname[:-1]})
                 outputted_flag = 1
 
             if longest and outputted_flag:
@@ -137,6 +154,10 @@ class CompoundNounExtractor():
 
 
 if __name__ == "__main__":
+    from pyknp import KNP
+    import sys
+    import codecs
+    
     sys.stdin = codecs.getreader('UTF-8')(sys.stdin)
     sys.stdout = codecs.getwriter('UTF-8')(sys.stdout)
     sys.stderr = codecs.getwriter('UTF-8')(sys.stderr)
@@ -152,7 +173,7 @@ if __name__ == "__main__":
         if line.strip() == "EOS":
             result = knp.result(data)
             for bnst in result.bnst_list():
-                print u"★ bid:%s" % bnst.bnst_id
+                print u"★ bid%d" % int(bnst.bnst_id)
                 words = CNE.ExtractCompoundNounfromBnst(bnst,
                                                     longest=CNE.args.longest,
                                                     use_repname=CNE.args.repname)
@@ -160,8 +181,9 @@ if __name__ == "__main__":
                     continue
                 if not CNE.args.repname:
                     for word in words:
-                        print word["midasi"]
+                        print u"midasi:%s repname:%s\n" \
+                            % (word["midasi"], word["repname"])
                 else:
                     for word in words:
-                        print word["repname"]
-                print
+                        print u"repname:%s\n" % word["repname"]
+
