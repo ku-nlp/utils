@@ -46,7 +46,6 @@ def parseDependency(bnst_list, head=False):
             if comp_noun_list_of_dictionary != []:
                 for comp_noun in comp_noun_list_of_dictionary:
                     if comp_noun and comp_noun["midasi"] not in cn_list:
-                        print comp_noun["midasi"]
                         cn_list.append(comp_noun["midasi"])
         # 分節内の形態素で複合名詞の一部となる名詞があれば複合名詞の最後の名詞だけ抽出
         for bnst in bnst_list:
