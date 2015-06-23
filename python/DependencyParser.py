@@ -57,8 +57,8 @@ def parseDependency(bnst_list, head=False):
                 child_rep = extract_head(cn_list, child, bnst)
                 # 親文節について
                 parent_rep = extract_head(cn_list, parent, bnst.parent)
-            if "-".join([parent_rep, child_rep]) not in parent_child:
-                parent_child.append("-".join([parent_rep, child_rep]))
+                if "-".join([parent_rep, child_rep]) not in parent_child:
+                    parent_child.append("-".join([parent_rep, child_rep]))
 
     return parent_child
 
