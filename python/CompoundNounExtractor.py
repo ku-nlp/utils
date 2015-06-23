@@ -38,7 +38,7 @@ import re
 from argparse import ArgumentParser
 
 
-class CompoundNounExtractor():
+class CompoundNounExtractor(object):
     def get_args(self):
         usage = u'{0} [Args] [Options]\nDetailed options -h or --help'.format(__file__)
         parser = ArgumentParser(description=usage)
