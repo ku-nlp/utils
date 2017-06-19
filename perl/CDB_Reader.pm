@@ -27,6 +27,14 @@ sub new {
     push(@{$this->{map}}, {key => undef, cdb => \%cdb});
     $this->{map}[-1]{db_ref} = $db_ref if $opt->{repeated_keys}; # keyが同じで値が異なるものが複数あるオプション
 
+    if (! -s $keymapfile) {
+	(my $file1 = $file0) =~ s/0$/1/;
+	if (-e "$dbdir/$file1") {
+	    print STDERR "The size of the keymapfile is 0, but $dbdir/$file1 exists. The size of the keymapfile should be more than 0!\n";
+	    exit;
+	}
+    }
+
     open(READER, '<:utf8', $keymapfile) or die "$!";
     while (<READER>) {
 	chomp($_);
