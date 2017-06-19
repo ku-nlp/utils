@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # usage: python write_cdb.py -d /somewhere/test.cdb -k test.cdb.keymap -i test.txt.gz
+# *** test.txt.gz should be sorted *** 
 
 from CDB_Writer import CDB_Writer
 import argparse
