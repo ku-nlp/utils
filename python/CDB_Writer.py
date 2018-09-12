@@ -47,8 +47,8 @@ class CDB_Writer:
 
         key_str, value_str = str(key), str(value)
         self.cdb.add(key_str, value_str)
-        self.size += (len(key_str.encode('utf-8'))
-        + len(value_str.encode('utf-8')))
+        self.size += (len(key_str.encode(self.encoding))
+        + len(value_str.encode(self.encoding)))
 
 
 if __name__ == '__main__':
