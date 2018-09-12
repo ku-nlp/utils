@@ -9,7 +9,7 @@ import codecs
 
 
 def main():
-    DEFAULTLFS = 2.5 * 1024 * 1024 * 1024
+    DEFAULTLFS = 3.2 * 1024 * 1024 * 1024
     parser = argparse.ArgumentParser(description="make and split CDBs")
     parser.add_argument('--inputfile', '-i', type=str,
                         help="key-value format input file")
@@ -17,11 +17,9 @@ def main():
     parser.add_argument('--keymapfile', '-k', type=str, help="keymap of cdbs")
     parser.add_argument('--limit_file_size', '-l', type=int, default=DEFAULTLFS,
                         help="limit file size of each cdbs")
-    parser.add_argument('--fetch', '-f', type=int, default=1000000,
-                        help="interval term of checking file size")
-    parser.add_argument('--encoding_in', type=str, default='utf8',
+    parser.add_argument('--encoding_in', type=str, default='utf-8',
                         help="default encoding of input")
-    parser.add_argument('--encoding_out', '-e', type=str, default='utf8',
+    parser.add_argument('--encoding_out', '-e', type=str, default='utf-8',
                         help="default encoding of cdb")
 
     args = parser.parse_args()
@@ -29,20 +27,18 @@ def main():
     dbname = args.dbname
     keymapfile = args.keymapfile
     limit_file_size = args.limit_file_size
-    fetch = args.fetch
     encoding_in = args.encoding_in
     encoding_out = args.encoding_out
 
-    maker = CDB_Writer(dbname, keymapfile, limit_file_size, fetch,
-                       encoding_out)
+    maker = CDB_Writer(dbname, keymapfile, limit_file_size, encoding_out)
     reader = codecs.getreader(encoding_in)
     with gzip.open(inputfile) as f:
         f = reader(f)
         for l in iter(f.readline, ''):
             kv = l.strip().split(' ')
-            k = kv[0].encode(encoding_out)
+            k = kv[0]
             # assumption: value is not separeted by ' '
-            v = kv[1].encode(encoding_out)
+            v = kv[1]
             maker.add(k, v)
     del maker
 
