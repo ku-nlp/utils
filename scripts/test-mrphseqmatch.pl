@@ -28,6 +28,7 @@ my $knp = new KNP(-Option => '-tab -dpnd');
 my $result = $knp->parse($sentence);
 my $flag = $mrphseqmatch->MrphSeqMatch($result);
 
+# 全体マッチの場合のみ
 if ($flag) {
     print "Match!\n";
 }
