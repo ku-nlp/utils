@@ -125,7 +125,7 @@ sub MrphMatch {
     return 1;
 }
 
-# パターンと照合とするかチェック
+# パターンと照合するかチェック
 sub CheckPatternTag {
     my ($this, $result, $pat, $m_num, $m2b, $m2t) = @_;
 
